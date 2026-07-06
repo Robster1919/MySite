@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Atlas — Robert Eyre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #14110D; }
+  ::selection { background: #E08A2F; color: #14110D; }
+  input::placeholder, textarea::placeholder { color: rgba(242,237,228,0.35); }
+
+  * { box-sizing: content-box; }
+
+  .page { background: #14110D; color: #F2EDE4; font-family: 'Archivo', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  /* nav */
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: 28px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .link-back { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; color: rgba(242,237,228,0.65); text-decoration: none; }
+  .link-back:hover { color: #E08A2F; }
+  .nav-count { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; color: rgba(242,237,228,0.65); }
+
+  /* header */
+  .header { padding: 72px 48px 56px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: end; }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 0.22em; color: #E08A2F; margin-bottom: 24px; }
+  .h1 { font-weight: 900; font-stretch: 118%; font-size: clamp(56px, 8vw, 116px); line-height: 0.94; letter-spacing: -0.02em; text-transform: uppercase; margin: 0; }
+  .h1-sm { font-weight: 900; font-stretch: 118%; font-size: clamp(48px, 6.5vw, 96px); line-height: 0.94; letter-spacing: -0.02em; text-transform: uppercase; margin: 0; }
+  .header-right { display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
+  .lede { font-size: 18px; line-height: 1.55; color: rgba(242,237,228,0.75); max-width: 440px; text-wrap: pretty; }
+
+  .btn-outline { background: none; border: 1px solid rgba(224,138,47,0.6); color: #E08A2F; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; padding: 14px 28px; cursor: pointer; }
+  .btn-outline:hover { background: rgba(224,138,47,0.1); }
+
+  /* split layout */
+  .split { display: grid; grid-template-columns: 1.35fr 1fr; border-bottom: 1px solid rgba(242,237,228,0.12); align-items: start; }
+  .map-col { border-right: 1px solid rgba(242,237,228,0.12); padding: 48px; display: flex; flex-direction: column; align-items: center; gap: 24px; position: sticky; top: 0; }
+  .canvas-wrap { position: relative; width: 100%; }
+  .canvas-wrap.globe { max-width: 720px; }
+  .canvas-wrap.map { max-width: 760px; }
+  #globeCanvas { display: block; width: 100%; touch-action: none; cursor: grab; }
+  #mapCanvas { display: block; width: 100%; border: 1px solid rgba(242,237,228,0.2); }
+
+  .overlay-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.18em; color: rgba(242,237,228,0.45); }
+
+  .pin-banner { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); white-space: nowrap; border: 1px solid rgba(224,138,47,0.6); background: #14110D; padding: 10px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #E08A2F; display: none; }
+  .pin-banner.show { display: block; }
+
+  .tip-card { position: absolute; width: 250px; pointer-events: none; background: #14110D; border: 1px solid rgba(224,138,47,0.7); padding: 18px 20px; z-index: 5; display: none; }
+  .tip-card.show { display: block; }
+  .tip-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #E08A2F; margin-bottom: 8px; }
+  .tip-name { font-weight: 900; font-stretch: 112%; font-size: 20px; line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; }
+  .tip-coords { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: rgba(242,237,228,0.45); margin-top: 8px; }
+  .tip-note { font-size: 14px; line-height: 1.5; color: rgba(242,237,228,0.75); margin-top: 10px; text-wrap: pretty; }
+  .tip-stars { color: #E08A2F; font-size: 13px; letter-spacing: 5px; margin-top: 10px; }
+
+  .hint { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: rgba(242,237,228,0.4); text-align: center; }
+
+  .ledger-col { padding: 48px; }
+  .ledger-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px 16px; padding-bottom: 20px; border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .section-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.22em; color: #E08A2F; white-space: nowrap; }
+  .tabs { display: flex; gap: 18px; }
+  .tab-btn { background: none; border: none; border-bottom: 1px solid transparent; color: rgba(242,237,228,0.45); font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; padding: 0 0 4px 0; cursor: pointer; white-space: nowrap; }
+  .tab-btn.active { border-bottom-color: #E08A2F; color: #E08A2F; }
+
+  .add-form { border: 1px solid rgba(224,138,47,0.5); background: rgba(224,138,47,0.04); padding: 26px; margin-top: 28px; display: flex; flex-direction: column; gap: 16px; }
+  .add-form[hidden] { display: none; }
+  .add-form-title { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #E08A2F; }
+  .seg-row { display: flex; gap: 10px; }
+  .seg-btn { background: none; border: 1px solid rgba(242,237,228,0.3); color: rgba(242,237,228,0.65); font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; padding: 10px 16px; cursor: pointer; }
+  .seg-btn.on { background: #E08A2F; border-color: #E08A2F; color: #14110D; }
+  .stars-row { display: flex; align-items: center; gap: 10px; }
+  .stars-label { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: rgba(242,237,228,0.5); }
+
+  .field-name { background: none; border: none; border-bottom: 1px solid rgba(242,237,228,0.25); color: #F2EDE4; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 20px; padding: 8px 2px; outline: none; width: 100%; }
+  .field-name:focus { border-color: #E08A2F; }
+  .field-mono { background: none; border: none; border-bottom: 1px solid rgba(242,237,228,0.25); color: #F2EDE4; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; padding: 10px 2px; outline: none; width: 100%; }
+  .field-mono:focus { border-color: #E08A2F; }
+  .field-note { background: none; border: none; border-bottom: 1px solid rgba(242,237,228,0.25); color: #F2EDE4; font-family: 'Archivo', sans-serif; font-size: 15px; line-height: 1.5; padding: 10px 2px; outline: none; width: 100%; resize: vertical; }
+  .field-note:focus { border-color: #E08A2F; }
+
+  .form-actions { display: flex; gap: 14px; margin-top: 6px; }
+  .btn-solid { background: #E08A2F; border: 1px solid #E08A2F; color: #14110D; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; padding: 12px 24px; cursor: pointer; font-weight: 500; }
+  .btn-solid:hover { background: #EDA050; }
+  .btn-cancel { background: none; border: 1px solid rgba(242,237,228,0.3); color: rgba(242,237,228,0.65); font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; padding: 12px 24px; cursor: pointer; }
+  .btn-cancel:hover { border-color: #F2EDE4; color: #F2EDE4; }
+
+  .empty-msg { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; color: rgba(242,237,228,0.45); padding: 40px 0; display: none; }
+  .empty-msg.show { display: block; }
+
+  .scroll-col { display: flex; flex-direction: column; max-height: 560px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(224,138,47,0.4) transparent; }
+  .scroll-col.tables-london { max-height: 420px; }
+  .scroll-col.tables-away { max-height: 300px; }
+  .scroll-col::-webkit-scrollbar { width: 6px; }
+  .scroll-col::-webkit-scrollbar-thumb { background: rgba(224,138,47,0.4); border-radius: 3px; }
+  .scroll-col::-webkit-scrollbar-track { background: transparent; }
+
+  .ledger-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 22px 0; border-bottom: 1px solid rgba(242,237,228,0.12); cursor: pointer; align-items: start; }
+  .ledger-row:hover { background: rgba(242,237,228,0.03); }
+  .row-name { font-weight: 700; font-size: 18px; letter-spacing: -0.01em; }
+  .row-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: rgba(242,237,228,0.45); margin-top: 5px; }
+  .row-note { font-size: 14px; line-height: 1.5; color: rgba(242,237,228,0.65); margin-top: 8px; text-wrap: pretty; }
+  .row-remove { background: none; border: none; color: rgba(242,237,228,0.25); font-family: 'IBM Plex Mono', monospace; font-size: 15px; cursor: pointer; padding: 2px 6px; }
+  .row-remove:hover { color: #E08A2F; }
+
+  .table-row { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; padding: 18px 0; border-bottom: 1px solid rgba(242,237,228,0.12); align-items: baseline; }
+  .table-row.clickable { cursor: pointer; }
+  .table-row:hover { background: rgba(242,237,228,0.03); }
+  .table-name { font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+  .table-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: rgba(242,237,228,0.45); margin-top: 4px; }
+  .table-stars { font-size: 13px; color: #E08A2F; letter-spacing: 4px; white-space: nowrap; }
+
+  .section-head { padding: 88px 48px 56px 48px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: end; }
+
+  .list-header { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: rgba(242,237,228,0.45); padding: 32px 0 12px 0; border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .list-header.away { padding: 36px 0 12px 0; }
+
+  .footer { display: flex; justify-content: space-between; align-items: baseline; padding: 28px 48px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; color: rgba(242,237,228,0.5); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ NAV ============ -->
+  <div class="nav">
+    <a href="index.html" class="link-back">← ROBERT EYRE</a>
+    <div class="nav-count" id="countLabel"></div>
+  </div>
+
+  <!-- ============ HEADER ============ -->
+  <div class="header">
+    <div>
+      <div class="kicker">THE ATLAS — A LIVING RECORD</div>
+      <h1 class="h1">Ground<br>truth.</h1>
+    </div>
+    <div class="header-right">
+      <div class="lede">Every pin is somewhere I've actually stood. Drag the globe to wander, hover a pin for the story. New entries get logged as they happen.</div>
+      <button class="btn-outline" id="addEntryBtn" type="button">ADD ENTRY +</button>
+    </div>
+  </div>
+
+  <!-- ============ GLOBE + LEDGER ============ -->
+  <div class="split">
+
+    <!-- Globe -->
+    <div class="map-col">
+      <div class="canvas-wrap globe" id="globeWrap">
+        <canvas id="globeCanvas"></canvas>
+        <div class="overlay-center mono" id="globeLoading">LOADING THE WORLD —</div>
+        <div class="pin-banner" id="globeBanner"></div>
+        <div class="tip-card" id="globeTip">
+          <div class="tip-kicker" id="gTipKicker"></div>
+          <div class="tip-name" id="gTipName"></div>
+          <div class="tip-coords" id="gTipCoords"></div>
+          <div class="tip-note" id="gTipNote"></div>
+        </div>
+      </div>
+      <div class="hint mono">DRAG TO SPIN · HOVER A ◆ FOR THE STORY · CLICK A LEDGER ROW TO FLY THERE</div>
+    </div>
+
+    <!-- Ledger -->
+    <div class="ledger-col">
+      <div class="ledger-head">
+        <div class="section-kicker">THE LEDGER</div>
+        <div class="tabs">
+          <button class="tab-btn" id="ledgerLoggedTab" type="button"></button>
+          <button class="tab-btn" id="ledgerWishTab" type="button"></button>
+        </div>
+      </div>
+
+      <div class="add-form" id="ledgerForm" hidden>
+        <div class="add-form-title" id="ledgerFormTitle"></div>
+        <div class="seg-row">
+          <button class="seg-btn" id="ledgerBeenBtn" type="button">BEEN THERE ◆</button>
+          <button class="seg-btn" id="ledgerWishBtn" type="button">ON THE LIST ◇</button>
+        </div>
+        <input class="field-name" id="ledgerNameInput" placeholder="Place — e.g. Fuego at night">
+        <input class="field-mono" id="ledgerLocInput" placeholder="COUNTRY / REGION">
+        <input class="field-mono" id="ledgerWhenInput" placeholder="WHEN — e.g. SEPT 2026">
+        <textarea class="field-note" id="ledgerNoteInput" placeholder="The story — what happened there" rows="3"></textarea>
+        <div class="form-actions">
+          <button class="btn-solid" id="ledgerSaveBtn" type="button"></button>
+          <button class="btn-cancel" id="ledgerCancelBtn" type="button">CANCEL</button>
+        </div>
+      </div>
+
+      <div class="empty-msg mono" id="ledgerEmpty"></div>
+
+      <div class="scroll-col" id="ledgerList"></div>
+    </div>
+  </div>
+
+  <!-- ============ MICHELIN / THE STARS ============ -->
+  <div style="border-bottom: 1px solid rgba(242,237,228,0.12);">
+    <div class="section-head">
+      <div>
+        <div class="kicker">THE STARS — MICHELIN LEDGER</div>
+        <h2 class="h1-sm">Stars,<br>eaten.</h2>
+      </div>
+      <div class="header-right">
+        <div class="lede">A running count of Michelin tables. Mostly a London habit — plotted street-true below, one ◆ per star — with the occasional detour further afield.</div>
+        <button class="btn-outline" id="mAddBtn" type="button">ADD A TABLE +</button>
+      </div>
+    </div>
+
+    <div class="split" style="border-top: 1px solid rgba(242,237,228,0.12);">
+
+      <!-- London chart -->
+      <div class="map-col">
+        <div class="canvas-wrap map" id="mapWrap">
+          <canvas id="mapCanvas"></canvas>
+          <div class="pin-banner" id="mBanner"></div>
+          <div class="tip-card" id="mapTip">
+            <div class="tip-kicker" id="mTipKicker"></div>
+            <div class="tip-name" id="mTipName"></div>
+            <div class="tip-stars" id="mTipStars"></div>
+          </div>
+        </div>
+        <div class="hint mono">CENTRAL LONDON · ONE ◆ PER MICHELIN STAR · HOVER A CLUSTER FOR THE TABLE</div>
+      </div>
+
+      <!-- Tables ledger -->
+      <div class="ledger-col">
+        <div class="ledger-head">
+          <div class="section-kicker" id="mStatLabel"></div>
+          <div class="tabs">
+            <button class="tab-btn" id="mLoggedTab" type="button"></button>
+            <button class="tab-btn" id="mWishTab" type="button"></button>
+          </div>
+        </div>
+
+        <div class="add-form" id="mForm" hidden>
+          <div class="add-form-title" id="mFormTitle"></div>
+          <div class="seg-row">
+            <button class="seg-btn" id="mBeenBtn" type="button">EATEN ◆</button>
+            <button class="seg-btn" id="mWishBtn" type="button">ON THE LIST ◇</button>
+          </div>
+          <input class="field-name" id="mNameInput" placeholder="Restaurant — e.g. The Ledbury">
+          <div class="seg-row">
+            <button class="seg-btn" id="mLondonBtn" type="button">LONDON</button>
+            <button class="seg-btn" id="mAwayBtn" type="button">FURTHER AFIELD</button>
+          </div>
+          <input class="field-mono" id="mAreaInput" placeholder="AREA — e.g. MAYFAIR">
+          <input class="field-mono" id="mCuisineInput" placeholder="CUISINE — e.g. MODERN BRITISH">
+          <div class="stars-row">
+            <div class="stars-label">STARS</div>
+            <button class="seg-btn" id="mStar1Btn" type="button">◆</button>
+            <button class="seg-btn" id="mStar2Btn" type="button">◆◆</button>
+            <button class="seg-btn" id="mStar3Btn" type="button">◆◆◆</button>
+          </div>
+          <div class="form-actions">
+            <button class="btn-solid" id="mSaveBtn" type="button"></button>
+            <button class="btn-cancel" id="mCancelBtn" type="button">CANCEL</button>
+          </div>
+        </div>
+
+        <div class="list-header" id="mLondonHeader"></div>
+        <div class="scroll-col tables-london" id="mLondonList"></div>
+
+        <div class="list-header away" id="mAwayHeader"></div>
+        <div class="scroll-col tables-away" id="mAwayList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <div class="footer">
+    <a href="index.html" class="link-back">← BACK TO THE FRONT PAGE</a>
+    <div>PLOTTED FIRST-HAND · © 2026</div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var LS_KEY = "robert-atlas-entries-v1";
+  var M_KEY = "robert-michelin-v1";
+  var M_EXT = { lonMin: -0.225, lonMax: -0.06, latMin: 51.455, latMax: 51.535 };
+  var THAMES = [[-0.223, 51.470], [-0.205, 51.464], [-0.19, 51.462], [-0.173, 51.466], [-0.163, 51.475], [-0.148, 51.482], [-0.135, 51.483], [-0.128, 51.487], [-0.122, 51.493], [-0.1235, 51.500], [-0.119, 51.506], [-0.108, 51.509], [-0.096, 51.510], [-0.085, 51.507], [-0.072, 51.506], [-0.062, 51.505]];
+
+  var AUTO_ROTATE = true;
+  var SPIN_SPEED = 1;
+  var SHOW_GRATICULE = true;
+
+  function seed() {
+    return [
+      { id: 1, name: "Home base", loc: "LONDON, UK", when: "ALWAYS", note: "51° north. Where the passport lives between trips.", lat: 51.4993, lon: -0.1938 },
+      { id: 2, name: "Lived & taught", loc: "VIETNAM", when: "", note: "A year of teaching, motorbikes and pho for breakfast.", lat: 16.0544, lon: 108.2022 },
+      { id: 3, name: "Fuji summit", loc: "JAPAN", when: "", note: "Overnight ascent to catch sunrise above the clouds.", lat: 35.3606, lon: 138.7274 },
+      { id: 4, name: "Fuego at night", loc: "GUATEMALA", when: "", note: "Camped on Acatenango, watched Fuego throw lava until 3am.", lat: 14.4747, lon: -90.8806 },
+      { id: 5, name: "Petra & Wadi Rum", loc: "JORDAN", when: "", note: "Through the Siq at dawn, then a desert camp under the stars.", lat: 30.3285, lon: 35.4444 },
+      { id: 6, name: "Scuba in the Red Sea", loc: "SHARM EL SHEIKH, EGYPT", when: "", note: "Reefs with visibility for days.", lat: 27.9158, lon: 34.33 },
+      { id: 7, name: "Jet ski, island to island", loc: "CROATIA", when: "", note: "An Adriatic crossing between the Dalmatian islands.", lat: 43.38, lon: 16.44 },
+      { id: 8, name: "Wild sea turtles", loc: "AUSTRALIA", when: "", note: "Swam alongside them on the southern Great Barrier Reef.", lat: -23.9, lon: 152.08 },
+      { id: 9, name: "Kjeragbolten", loc: "NORWAY", when: "", note: "Stood on the boulder. Once was enough.", lat: 59.0336, lon: 6.5931 },
+      { id: 10, name: "Caesars Palace poker champion", loc: "LAS VEGAS, USA", when: "", note: "Walked in a tourist, walked out a champion.", lat: 36.1162, lon: -115.1745 },
+      { id: 11, name: "President's Club", loc: "PUNTA DE MITA, MEXICO", when: "SNOWFLAKE", note: "Earned the trip. Took the win, kept the tan.", lat: 20.7699, lon: -105.5185 },
+      { id: 12, name: "Inside the Pyramids", loc: "GIZA, EGYPT", when: "", note: "Stepped into an ancient tomb — walking straight into history.", lat: 29.9773, lon: 31.1325 },
+      { id: 13, name: "Shanghai from the tower", loc: "SHANGHAI, CHINA", when: "", note: "Up the main tower for a skyline that felt almost futuristic.", lat: 31.2336, lon: 121.5055 },
+      { id: 14, name: "Vertical Hong Kong", loc: "HONG KONG", when: "", note: "Up the iconic tower for the full harbour and skyline buzz.", lat: 22.2855, lon: 114.1577 },
+      { id: 15, name: "Marina Bay Sands", loc: "SINGAPORE", when: "", note: "Partied on the roof, then Gardens by the Bay — a city that built its own future.", lat: 1.2834, lon: 103.8607 },
+      { id: 16, name: "Blue Lagoon & geysers", loc: "ICELAND", when: "", note: "Soaked in the lagoon, watched the earth erupt, ate reindeer and puffin.", lat: 63.8791, lon: -22.4438 },
+      { id: 17, name: "Skydive over the Palm", loc: "DUBAI, UAE", when: "", note: "Jumped over Palm Jumeirah, then New Year's under the Burj Khalifa.", lat: 25.092, lon: 55.1381 },
+      { id: 18, name: "Bruges & Brussels", loc: "BELGIUM", when: "", note: "Fairy-tale canals, then the chocolate-and-beer-soaked charm of Brussels.", lat: 51.2093, lon: 3.2247 },
+      { id: 19, name: "Copenhagen", loc: "DENMARK", when: "", note: "Crown Jewels, Michelin Guide sandwiches and Christiania's free-spirited side.", lat: 55.6761, lon: 12.5683 },
+      { id: 20, name: "Venice, Rome & Milan", loc: "ITALY", when: "", note: "Canals to ancient streets to polished style — the full sweep of Italy.", lat: 41.9028, lon: 12.4964 },
+      { id: 21, name: "Champagne at Café de Paris", loc: "MONACO", when: "", note: "The first bottle. Appropriately ridiculous and glamorous.", lat: 43.7403, lon: 7.4278 },
+      { id: 22, name: "Teenage years abroad", loc: "NETHERLANDS", when: "AGE 13–16", note: "Lived between Amsterdam and Den Haag — three years that shaped everything.", lat: 52.0705, lon: 4.3007 },
+      { id: 23, name: "The Algarve", loc: "PORTUGAL", when: "", note: "Ate incredibly well, seaside pace the whole way.", lat: 37.0179, lon: -7.9304 },
+      { id: 24, name: "Sagrada Família", loc: "BARCELONA, SPAIN", when: "", note: "Ancient, unfinished and otherworldly all at once.", lat: 41.4036, lon: 2.1744 },
+      { id: 25, name: "The Vatican & vaults", loc: "VATICAN CITY", when: "", note: "Centuries of power, art, secrecy and spectacle.", lat: 41.9029, lon: 12.4534 },
+      { id: 26, name: "Lucha libre & tacos", loc: "MEXICO CITY, MEXICO", when: "", note: "Lucha libre, a Michelin-recognised taco stand and tequila tasting.", lat: 19.4326, lon: -99.1332 },
+      { id: 27, name: "New York, the classic", loc: "NEW YORK, USA", when: "", note: "Observatory views, parties and steak dinners at full speed.", lat: 40.7484, lon: -73.9857 },
+      { id: 28, name: "Top down in Miami", loc: "MIAMI, USA", when: "", note: "24-hour parties and boulevard chaos, roof off.", lat: 25.7617, lon: -80.1918 },
+      { id: 29, name: "Honky Tonk Highway", loc: "NASHVILLE, USA", when: "", note: "Proper BBQ, neon signs and live music till late.", lat: 36.1627, lon: -86.7816 },
+      { id: 30, name: "6th Street & Franklin BBQ", loc: "AUSTIN, USA", when: "", note: "A shed that became a club, Clydesdales on 6th, Rogan's comedy club, Franklin to finish.", lat: 30.2672, lon: -97.7431 }
+    ];
+  }
+
+  function wishSeed() {
+    return [
+      { id: 51, name: "Torres del Paine", loc: "PATAGONIA, CHILE", when: "", note: "The W trek, end to end.", lat: -50.9423, lon: -73.4068, wish: true },
+      { id: 52, name: "Gorillas in the mist", loc: "RWANDA", when: "", note: "Volcanoes NP — one hour with a habituated troop.", lat: -1.4795, lon: 29.4926, wish: true },
+      { id: 53, name: "Aurora, properly", loc: "TROMSØ, NORWAY", when: "", note: "69° north in deep winter, camera ready.", lat: 69.6492, lon: 18.9553, wish: true }
+    ];
+  }
+
+  function mSeed() {
+    return [
+      { id: 101, name: "CORE by Clare Smyth", area: "NOTTING HILL", cuisine: "MODERN BRITISH", stars: 3, isLondon: true, lat: 51.5137, lon: -0.2010 },
+      { id: 102, name: "Dinner by Heston Blumenthal", area: "KNIGHTSBRIDGE", cuisine: "TRADITIONAL BRITISH", stars: 1, isLondon: true, lat: 51.5021, lon: -0.1600 },
+      { id: 103, name: "A. Wong", area: "VICTORIA", cuisine: "CHINESE", stars: 2, isLondon: true, lat: 51.4926, lon: -0.1420 },
+      { id: 104, name: "Restaurant Story", area: "BERMONDSEY", cuisine: "MODERN CUISINE", stars: 2, isLondon: true, lat: 51.5027, lon: -0.0766 },
+      { id: 105, name: "Humble Chicken", area: "SOHO", cuisine: "JAPANESE", stars: 1, isLondon: true, lat: 51.5136, lon: -0.1318 },
+      { id: 106, name: "Angler", area: "MOORGATE", cuisine: "SEAFOOD", stars: 1, isLondon: true, lat: 51.5199, lon: -0.0864 },
+      { id: 107, name: "Murano", area: "MAYFAIR", cuisine: "ITALIAN", stars: 1, isLondon: true, lat: 51.5079, lon: -0.1489 },
+      { id: 108, name: "Galvin La Chapelle", area: "SPITALFIELDS", cuisine: "FRENCH", stars: 1, isLondon: true, lat: 51.5195, lon: -0.0786 },
+      { id: 109, name: "HIDE", area: "PICCADILLY", cuisine: "MODERN BRITISH", stars: 1, isLondon: true, lat: 51.5066, lon: -0.1440 },
+      { id: 110, name: "Sushi Kanesaka", area: "MAYFAIR", cuisine: "JAPANESE", stars: 1, isLondon: true, lat: 51.5063, lon: -0.1522 },
+      { id: 111, name: "Cornucopia by Clare Smyth", area: "NOTTING HILL", cuisine: "TRADITIONAL BRITISH", stars: 1, isLondon: true, lat: 51.5150, lon: -0.2035 },
+      { id: 112, name: "Dorian", area: "NOTTING HILL", cuisine: "MODERN BRITISH", stars: 1, isLondon: true, lat: 51.5158, lon: -0.1990 },
+      { id: 113, name: "The Harwood Arms", area: "FULHAM", cuisine: "BRITISH GASTROPUB", stars: 1, isLondon: true, lat: 51.4808, lon: -0.1962 },
+      { id: 114, name: "Kikunoi Roan", area: "KYOTO, JAPAN", cuisine: "JAPANESE", stars: 2, isLondon: false, lat: 35.0035, lon: 135.7710 },
+      { id: 115, name: "San Ho Won", area: "SAN FRANCISCO, USA", cuisine: "KOREAN", stars: 1, isLondon: false, lat: 37.7614, lon: -122.4091 },
+      { id: 116, name: "Moss", area: "GRINDAVÍK, ICELAND", cuisine: "MODERN CUISINE", stars: 1, isLondon: false, lat: 63.8804, lon: -22.4495 }
+    ];
+  }
+
+  function mWishSeed() {
+    return [
+      { id: 151, name: "The Ledbury", area: "NOTTING HILL", cuisine: "MODERN BRITISH", stars: 3, isLondon: true, lat: 51.5111, lon: -0.2003, wish: true },
+      { id: 152, name: "Ikoyi", area: "THE STRAND", cuisine: "CREATIVE", stars: 2, isLondon: true, lat: 51.5104, lon: -0.1200, wish: true }
+    ];
+  }
+
+  function fmtCoords(lat, lon) {
+    return Math.abs(lat).toFixed(2) + "° " + (lat >= 0 ? "N" : "S") + ", " + Math.abs(lon).toFixed(2) + "° " + (lon >= 0 ? "E" : "W");
+  }
+
+  function diamond(ctx, x, y, r, fill, color) {
+    ctx.beginPath();
+    ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y);
+    ctx.closePath();
+    if (fill) { ctx.fillStyle = color || "#E08A2F"; ctx.fill(); }
+    else { ctx.strokeStyle = color || "#E08A2F"; ctx.lineWidth = 1.5; ctx.stroke(); }
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  var App = {
+    entries: [],
+    hoverId: null,
+    tip: null,
+    adding: false,
+    draft: null,
+    landReady: false,
+    view: "logged",
+
+    meals: [],
+    mView: "logged",
+    mHoverId: null,
+    mTip: null,
+    mAdding: false,
+    mDraft: null,
+
+    rot: [30, -18],
+    drag: null,
+    anim: null,
+    land: null,
+    proj: null,
+    size: 0,
+    dpr: 1,
+    lastMove: 0,
+    raf: 0,
+    dead: false,
+
+    mapW: 0,
+    mapH: 0,
+    mapDpr: 1,
+
+    init: function () {
+      this.canvas = $("globeCanvas");
+      this.mapCanvas = $("mapCanvas");
+
+      var entries = null;
+      try { entries = JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch (e) {}
+      if (!Array.isArray(entries) || entries.length === 0) {
+        entries = seed().concat(wishSeed());
+        this.persist(entries);
+      }
+      var meals = null;
+      try { meals = JSON.parse(localStorage.getItem(M_KEY) || "null"); } catch (e) {}
+      if (!Array.isArray(meals) || meals.length === 0) {
+        meals = mSeed().concat(mWishSeed());
+        this.mPersist(meals);
+      }
+      this.entries = entries;
+      this.meals = meals;
+
+      this.bindStatic();
+      this.renderLedger();
+      this.renderTables();
+      this.boot();
+    },
+
+    // ============ persistence ============
+    persist: function (entries) {
+      this.entries = entries;
+      try { localStorage.setItem(LS_KEY, JSON.stringify(entries)); } catch (e) {}
+    },
+    mPersist: function (meals) {
+      this.meals = meals;
+      try { localStorage.setItem(M_KEY, JSON.stringify(meals)); } catch (e) {}
+    },
+
+    // ============ boot / globe setup ============
+    boot: function () {
+      var self = this;
+      var t0 = Date.now();
+      (function wait() {
+        if (self.dead) return;
+        if (window.d3 && window.d3.geoOrthographic && window.topojson) { self.loadLand(); return; }
+        if (Date.now() - t0 > 20000) { self.loadLand(); return; }
+        setTimeout(wait, 100);
+      })();
+    },
+    loadLand: function () {
+      var self = this;
+      fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json")
+        .then(function (r) { return r.json(); })
+        .then(function (topo) { self.land = window.topojson.feature(topo, topo.objects.land); })
+        .catch(function () { self.land = { type: "FeatureCollection", features: [] }; })
+        .then(function () {
+          if (self.dead) return;
+          self.landReady = true;
+          $("globeLoading").style.display = "none";
+          self.setupCanvas();
+          self.setupMap();
+          self.raf = requestAnimationFrame(self.tick.bind(self));
+        });
+    },
+
+    setupCanvas: function () {
+      var self = this;
+      var c = this.canvas;
+      if (!c) return;
+      this.sizeCanvas();
+      window.addEventListener("resize", function () { self.sizeCanvas(); });
+      c.addEventListener("pointerdown", function (ev) {
+        self.drag = { x: ev.clientX, y: ev.clientY, moved: 0 };
+        self.anim = null;
+        c.style.cursor = "grabbing";
+        try { c.setPointerCapture(ev.pointerId); } catch (e) {}
+      });
+      c.addEventListener("pointermove", function (ev) { self.onMove(ev); });
+      window.addEventListener("pointerup", function (ev) { self.onUp(ev); });
+      c.addEventListener("pointerleave", function () {
+        if (!self.drag && self.tip) { self.hoverId = null; self.tip = null; self.syncGlobeTip(); }
+      });
+    },
+
+    sizeCanvas: function () {
+      var c = this.canvas;
+      if (!c || !c.parentElement) return;
+      var s = Math.max(320, Math.min(c.parentElement.clientWidth, 720));
+      this.size = s;
+      this.dpr = window.devicePixelRatio || 1;
+      c.width = s * this.dpr;
+      c.height = s * this.dpr;
+      c.style.width = s + "px";
+      c.style.height = s + "px";
+    },
+
+    onMove: function (ev) {
+      if (this.drag) {
+        var dx = ev.clientX - this.drag.x, dy = ev.clientY - this.drag.y;
+        this.drag.moved += Math.abs(dx) + Math.abs(dy);
+        this.rot[0] += dx * 0.3;
+        this.rot[1] = Math.max(-80, Math.min(80, this.rot[1] - dy * 0.3));
+        this.drag.x = ev.clientX; this.drag.y = ev.clientY;
+        this.lastMove = performance.now();
+        if (this.tip) { this.hoverId = null; this.tip = null; this.syncGlobeTip(); }
+        return;
+      }
+      this.lastMove = performance.now();
+      this.hover(ev);
+    },
+
+    onUp: function (ev) {
+      if (!this.drag) return;
+      var wasClick = this.drag.moved < 6;
+      this.drag = null;
+      var c = this.canvas;
+      if (c) c.style.cursor = this.adding ? "crosshair" : "grab";
+      if (wasClick && this.adding && this.proj && c) {
+        var b = c.getBoundingClientRect();
+        var x = ev.clientX - b.left, y = ev.clientY - b.top;
+        if (Math.hypot(x - this.size / 2, y - this.size / 2) > this.size / 2 - 20) return;
+        var ll = this.proj.invert([x, y]);
+        if (!ll || isNaN(ll[0]) || isNaN(ll[1])) return;
+        this.draft = this.draft || { name: "", loc: "", when: "", note: "" };
+        this.draft.lon = +ll[0].toFixed(4);
+        this.draft.lat = +ll[1].toFixed(4);
+        this.syncLedgerForm();
+      }
+    },
+
+    hover: function (ev) {
+      if (!this.proj) return;
+      var c = this.canvas;
+      var b = c.getBoundingClientRect();
+      var x = ev.clientX - b.left, y = ev.clientY - b.top;
+      var center = [-this.rot[0], -this.rot[1]];
+      var best = null, bd = 14;
+      for (var i = 0; i < this.entries.length; i++) {
+        var e = this.entries[i];
+        if (typeof e.lat !== "number") continue;
+        if (!!e.wish !== (this.view === "wish")) continue;
+        if (window.d3.geoDistance([e.lon, e.lat], center) > 1.55) continue;
+        var p = this.proj([e.lon, e.lat]);
+        if (!p) continue;
+        var dd = Math.hypot(p[0] - x, p[1] - y);
+        if (dd < bd) { bd = dd; best = e; }
+      }
+      c.style.cursor = this.adding ? "crosshair" : (best ? "pointer" : "grab");
+      var bid = best ? best.id : null;
+      if (bid !== this.hoverId) {
+        if (best) this.showTipFor(bid);
+        else { this.hoverId = null; this.tip = null; this.syncGlobeTip(); }
+      }
+    },
+
+    showTipFor: function (id) {
+      var e = null;
+      for (var i = 0; i < this.entries.length; i++) if (this.entries[i].id === id) { e = this.entries[i]; break; }
+      if (!e || !this.proj) return;
+      var p = this.proj([e.lon, e.lat]);
+      if (!p) return;
+      var left = p[0] + 20, top = p[1] - 16;
+      if (left + 300 > this.size && p[0] - 310 >= 8) left = p[0] - 310;
+      left = Math.max(8, Math.min(left, this.size - 300));
+      if (top < 8) top = 8;
+      if (top > this.size - 170) top = this.size - 170;
+      this.hoverId = id;
+      this.tip = { left: Math.round(left), top: Math.round(top), entry: e };
+      this.syncGlobeTip();
+    },
+
+    flyTo: function (e) {
+      var dl = ((-e.lon - this.rot[0] + 540) % 360) - 180;
+      var dp = (-e.lat) - this.rot[1];
+      this.anim = { from: [this.rot[0], this.rot[1]], dl: dl, dp: dp, t0: performance.now(), dur: 1100, target: e.id };
+      this.hoverId = e.id;
+      this.tip = null;
+      this.syncGlobeTip();
+    },
+
+    tick: function (t) {
+      if (this.dead) return;
+      if (this.anim) {
+        var a = this.anim;
+        var p = Math.min(1, (t - a.t0) / a.dur);
+        var k = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+        this.rot[0] = a.from[0] + a.dl * k;
+        this.rot[1] = a.from[1] + a.dp * k;
+        if (p === 1) {
+          this.anim = null;
+          if (a.target != null) this.showTipFor(a.target);
+        }
+      } else if (AUTO_ROTATE && !this.drag && !this.hoverId && !this.adding && t - this.lastMove > 2500) {
+        this.rot[0] += 0.05 * SPIN_SPEED;
+      }
+      this.draw(t);
+      this.drawMap(t);
+      this.raf = requestAnimationFrame(this.tick.bind(this));
+    },
+
+    draw: function (t) {
+      var c = this.canvas;
+      if (!c || !window.d3 || !this.size) return;
+      var ctx = c.getContext("2d");
+      var s = this.size;
+      ctx.save();
+      ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      ctx.clearRect(0, 0, s, s);
+      var proj = window.d3.geoOrthographic().translate([s / 2, s / 2]).scale(s / 2 - 24).rotate([this.rot[0], this.rot[1]]).clipAngle(90);
+      this.proj = proj;
+      var path = window.d3.geoPath(proj, ctx);
+
+      ctx.beginPath(); path({ type: "Sphere" });
+      ctx.fillStyle = "#1A1611"; ctx.fill();
+      ctx.strokeStyle = "rgba(242,237,228,0.3)"; ctx.lineWidth = 1; ctx.stroke();
+
+      if (SHOW_GRATICULE) {
+        ctx.beginPath(); path(window.d3.geoGraticule10());
+        ctx.strokeStyle = "rgba(242,237,228,0.07)"; ctx.lineWidth = 0.6; ctx.stroke();
+      }
+
+      if (this.land) {
+        ctx.beginPath(); path(this.land);
+        ctx.fillStyle = "rgba(242,237,228,0.16)"; ctx.fill();
+        ctx.strokeStyle = "rgba(242,237,228,0.4)"; ctx.lineWidth = 0.7; ctx.stroke();
+      }
+
+      var center = [-this.rot[0], -this.rot[1]];
+      var wishView = this.view === "wish";
+      for (var i = 0; i < this.entries.length; i++) {
+        var e = this.entries[i];
+        if (typeof e.lat !== "number") continue;
+        if (window.d3.geoDistance([e.lon, e.lat], center) > 1.55) continue;
+        var p = proj([e.lon, e.lat]);
+        if (!p) continue;
+        var isWish = !!e.wish;
+        if (isWish && !wishView) continue;
+        if (!isWish && wishView) { diamond(ctx, p[0], p[1], 3, true, "rgba(242,237,228,0.25)"); continue; }
+        var hot = e.id === this.hoverId;
+        if (isWish) {
+          diamond(ctx, p[0], p[1], hot ? 8 : 6, false);
+          ctx.setLineDash([3, 4]);
+          ctx.beginPath(); ctx.arc(p[0], p[1], 13 + 2 * Math.sin(t / 450 + (e.id % 7)), 0, Math.PI * 2);
+          ctx.strokeStyle = hot ? "rgba(224,138,47,0.8)" : "rgba(224,138,47,0.4)"; ctx.lineWidth = 1; ctx.stroke();
+          ctx.setLineDash([]);
+        } else {
+          diamond(ctx, p[0], p[1], hot ? 8 : 5, true);
+          if (hot) {
+            ctx.beginPath(); ctx.arc(p[0], p[1], 14, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(224,138,47,0.7)"; ctx.lineWidth = 1; ctx.stroke();
+          }
+        }
+      }
+
+      var d = this.draft;
+      if (this.adding && d && typeof d.lat === "number") {
+        if (window.d3.geoDistance([d.lon, d.lat], center) < 1.55) {
+          var pp = proj([d.lon, d.lat]);
+          diamond(ctx, pp[0], pp[1], 8, false);
+          var r = 15 + 6 * Math.abs(Math.sin(t / 400));
+          ctx.beginPath(); ctx.arc(pp[0], pp[1], r, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(224,138,47,0.5)"; ctx.lineWidth = 1; ctx.stroke();
+        }
+      }
+      ctx.restore();
+    },
+
+    // ============ globe entry CRUD ============
+    saveDraft: function () {
+      var d = this.draft;
+      if (!d || typeof d.lat !== "number") return;
+      if (!d.name || !d.name.trim()) return;
+      var entry = {
+        id: Date.now(),
+        name: d.name.trim(),
+        loc: (d.loc || "").trim().toUpperCase() || "—",
+        when: (d.when || "").trim().toUpperCase(),
+        note: (d.note || "").trim(),
+        wish: !!d.wish,
+        lat: d.lat, lon: d.lon
+      };
+      var entries = this.entries.concat([entry]);
+      this.persist(entries);
+      this.adding = false;
+      this.draft = null;
+      this.view = entry.wish ? "wish" : "logged";
+      var c = this.canvas;
+      if (c) c.style.cursor = "grab";
+      this.renderLedger();
+      this.flyTo(entry);
+    },
+
+    removeEntry: function (id) {
+      var entries = this.entries.filter(function (e) { return e.id !== id; });
+      this.persist(entries);
+      this.hoverId = null;
+      this.tip = null;
+      this.syncGlobeTip();
+      this.renderLedger();
+    },
+
+    setView: function (v) {
+      if (this.view === v) return;
+      this.view = v;
+      this.hoverId = null;
+      this.tip = null;
+      this.syncGlobeTip();
+      this.renderLedger();
+      if (v === "wish") {
+        var w = this.entries.filter(function (e) { return e.wish; });
+        if (w.length) this.flyTo(w[0]);
+      }
+    },
+
+    // ============ globe DOM binding ============
+    bindStatic: function () {
+      var self = this;
+
+      $("addEntryBtn").addEventListener("click", function () { self.toggleAdd(); });
+      $("ledgerLoggedTab").addEventListener("click", function () { self.setView("logged"); });
+      $("ledgerWishTab").addEventListener("click", function () { self.setView("wish"); });
+      $("ledgerBeenBtn").addEventListener("click", function () { self.draft.wish = false; self.syncLedgerForm(); });
+      $("ledgerWishBtn").addEventListener("click", function () { self.draft.wish = true; self.syncLedgerForm(); });
+      $("ledgerNameInput").addEventListener("input", function (ev) { self.draft.name = ev.target.value; });
+      $("ledgerLocInput").addEventListener("input", function (ev) { self.draft.loc = ev.target.value; });
+      $("ledgerWhenInput").addEventListener("input", function (ev) { self.draft.when = ev.target.value; });
+      $("ledgerNoteInput").addEventListener("input", function (ev) { self.draft.note = ev.target.value; });
+      $("ledgerSaveBtn").addEventListener("click", function () { self.saveDraft(); });
+      $("ledgerCancelBtn").addEventListener("click", function () { self.toggleAdd(); });
+
+      $("mAddBtn").addEventListener("click", function () { self.mToggleAdd(); });
+      $("mLoggedTab").addEventListener("click", function () { self.setMView("logged"); });
+      $("mWishTab").addEventListener("click", function () { self.setMView("wish"); });
+      $("mBeenBtn").addEventListener("click", function () { self.mDraft.wish = false; self.syncMForm(); });
+      $("mWishBtn").addEventListener("click", function () { self.mDraft.wish = true; self.syncMForm(); });
+      $("mNameInput").addEventListener("input", function (ev) { self.mDraft.name = ev.target.value; });
+      $("mAreaInput").addEventListener("input", function (ev) { self.mDraft.area = ev.target.value; });
+      $("mCuisineInput").addEventListener("input", function (ev) { self.mDraft.cuisine = ev.target.value; });
+      $("mLondonBtn").addEventListener("click", function () { self.mDraft.isLondon = true; self.syncMForm(); });
+      $("mAwayBtn").addEventListener("click", function () { self.mDraft.isLondon = false; self.mDraft.lat = null; self.mDraft.lon = null; self.syncMForm(); });
+      $("mStar1Btn").addEventListener("click", function () { self.mDraft.stars = 1; self.syncMForm(); });
+      $("mStar2Btn").addEventListener("click", function () { self.mDraft.stars = 2; self.syncMForm(); });
+      $("mStar3Btn").addEventListener("click", function () { self.mDraft.stars = 3; self.syncMForm(); });
+      $("mSaveBtn").addEventListener("click", function () { self.mSave(); });
+      $("mCancelBtn").addEventListener("click", function () { self.mToggleAdd(); });
+    },
+
+    toggleAdd: function () {
+      var opening = !this.adding;
+      this.adding = opening;
+      this.draft = opening ? { name: "", loc: "", when: "", note: "", lat: null, lon: null, wish: this.view === "wish" } : null;
+      var c = this.canvas;
+      if (c) c.style.cursor = opening ? "crosshair" : "grab";
+      $("addEntryBtn").textContent = opening ? "CLOSE ×" : "ADD ENTRY +";
+      $("ledgerForm").hidden = !opening;
+      this.syncLedgerForm();
+      this.renderLedger();
+    },
+
+    syncLedgerForm: function () {
+      var d = this.draft;
+      if (!d) return;
+      var hasPin = typeof d.lat === "number";
+      $("ledgerFormTitle").textContent = "NEW ENTRY — " + (hasPin ? fmtCoords(d.lat, d.lon) : "AWAITING PIN");
+      $("ledgerBeenBtn").classList.toggle("on", !d.wish);
+      $("ledgerWishBtn").classList.toggle("on", !!d.wish);
+      $("ledgerNameInput").value = d.name || "";
+      $("ledgerLocInput").value = d.loc || "";
+      $("ledgerWhenInput").value = d.when || "";
+      $("ledgerNoteInput").value = d.note || "";
+      $("ledgerSaveBtn").textContent = d.wish ? "ADD TO THE LIST ◇" : "LOG IT ◆";
+
+      var banner = $("globeBanner");
+      if (hasPin) {
+        banner.textContent = "② PIN DROPPED — WRITE THE STORY →";
+        banner.classList.add("show");
+      } else {
+        banner.textContent = d.wish ? "① CLICK THE GLOBE WHERE YOU'RE HEADED" : "① CLICK THE GLOBE WHERE IT HAPPENED";
+        banner.classList.add("show");
+      }
+    },
+
+    syncGlobeTip: function () {
+      var t = this.tip;
+      var el = $("globeTip");
+      if (!t) { el.classList.remove("show"); return; }
+      el.classList.add("show");
+      el.style.left = t.left + "px";
+      el.style.top = t.top + "px";
+      $("gTipKicker").textContent = (t.entry.wish ? "SOMEDAY · " : "") + (t.entry.loc || "—") + (t.entry.when ? " · " + t.entry.when : "");
+      $("gTipName").textContent = t.entry.name;
+      $("gTipCoords").textContent = fmtCoords(t.entry.lat, t.entry.lon);
+      $("gTipNote").textContent = t.entry.note;
+    },
+
+    renderLedger: function () {
+      var self = this;
+      var wishView = this.view === "wish";
+      var logged = this.entries.filter(function (e) { return !e.wish; });
+      var wishes = this.entries.filter(function (e) { return e.wish; });
+      var countries = new Set(logged.map(function (e) { return ((e.loc || "").split(",").pop() || "").trim(); }).filter(Boolean)).size;
+
+      $("countLabel").textContent = logged.length + " PINS · " + countries + (countries === 1 ? " COUNTRY" : " COUNTRIES") + " · " + wishes.length + " ON THE LIST";
+      $("ledgerLoggedTab").textContent = "LOGGED ◆ " + logged.length;
+      $("ledgerWishTab").textContent = "SOMEDAY ◇ " + wishes.length;
+      $("ledgerLoggedTab").classList.toggle("active", !wishView);
+      $("ledgerWishTab").classList.toggle("active", wishView);
+
+      var filtered = this.entries.filter(function (e) { return !!e.wish === wishView; }).slice().reverse();
+
+      var emptyEl = $("ledgerEmpty");
+      var isEmpty = filtered.length === 0 && !this.adding;
+      emptyEl.classList.toggle("show", isEmpty);
+      emptyEl.textContent = wishView ? "NOTHING ON THE LIST YET — DREAM A LITTLE." : "NOTHING LOGGED YET — ADD YOUR FIRST ENTRY.";
+
+      var list = $("ledgerList");
+      list.innerHTML = "";
+      filtered.forEach(function (e) {
+        var coord = fmtCoords(e.lat || 0, e.lon || 0);
+        var meta = (e.loc || "—") + " · " + coord + (e.when ? " · " + e.when : "");
+
+        var row = document.createElement("div");
+        row.className = "ledger-row";
+
+        var left = document.createElement("div");
+        var name = document.createElement("div");
+        name.className = "row-name";
+        name.textContent = e.name;
+        var metaEl = document.createElement("div");
+        metaEl.className = "row-meta";
+        metaEl.textContent = meta;
+        var note = document.createElement("div");
+        note.className = "row-note";
+        note.textContent = e.note;
+        left.appendChild(name); left.appendChild(metaEl); left.appendChild(note);
+
+        var remove = document.createElement("button");
+        remove.className = "row-remove";
+        remove.title = "Remove entry";
+        remove.type = "button";
+        remove.textContent = "×";
+        remove.addEventListener("click", function (ev) { ev.stopPropagation(); self.removeEntry(e.id); });
+
+        row.appendChild(left); row.appendChild(remove);
+        row.addEventListener("click", function () { self.flyTo(e); });
+        row.addEventListener("mouseenter", function () { self.hoverId = e.id; self.tip = null; self.syncGlobeTip(); });
+        row.addEventListener("mouseleave", function () { if (self.hoverId === e.id && !self.anim) { self.hoverId = null; self.tip = null; self.syncGlobeTip(); } });
+
+        list.appendChild(row);
+      });
+    },
+
+    // ============ Michelin / London map ============
+    setupMap: function () {
+      var self = this;
+      var c = this.mapCanvas;
+      if (!c) return;
+      this.sizeMap();
+      window.addEventListener("resize", function () { self.sizeMap(); });
+      c.addEventListener("pointermove", function (ev) { self.mapHover(ev); });
+      c.addEventListener("pointerleave", function () {
+        if (self.mTip || self.mHoverId !== null) { self.mHoverId = null; self.mTip = null; self.syncMapTip(); }
+      });
+      c.addEventListener("click", function (ev) { self.mapClick(ev); });
+    },
+
+    sizeMap: function () {
+      var c = this.mapCanvas;
+      if (!c || !c.parentElement) return;
+      var w = Math.max(320, Math.min(c.parentElement.clientWidth, 760));
+      var h = Math.round(w * 0.78);
+      this.mapW = w; this.mapH = h;
+      this.mapDpr = window.devicePixelRatio || 1;
+      c.width = w * this.mapDpr;
+      c.height = h * this.mapDpr;
+      c.style.width = w + "px";
+      c.style.height = h + "px";
+    },
+
+    mapPx: function (lon) { return (lon - M_EXT.lonMin) / (M_EXT.lonMax - M_EXT.lonMin) * this.mapW; },
+    mapPy: function (lat) { return (M_EXT.latMax - lat) / (M_EXT.latMax - M_EXT.latMin) * this.mapH; },
+
+    mapHover: function (ev) {
+      var c = this.mapCanvas;
+      if (!c || !this.mapW) return;
+      var b = c.getBoundingClientRect();
+      var x = ev.clientX - b.left, y = ev.clientY - b.top;
+      var best = null, bd = 16;
+      for (var i = 0; i < this.meals.length; i++) {
+        var m = this.meals[i];
+        if (!m.isLondon || typeof m.lat !== "number") continue;
+        if (!!m.wish !== (this.mView === "wish")) continue;
+        var dd = Math.hypot(this.mapPx(m.lon) - x, this.mapPy(m.lat) - y);
+        if (dd < bd) { bd = dd; best = m; }
+      }
+      var adding = this.mAdding && this.mDraft && this.mDraft.isLondon;
+      c.style.cursor = adding ? "crosshair" : (best ? "pointer" : "default");
+      var bid = best ? best.id : null;
+      if (bid !== this.mHoverId || (best && !this.mTip)) {
+        if (best) this.showMTip(bid);
+        else { this.mHoverId = null; this.mTip = null; this.syncMapTip(); }
+      }
+    },
+
+    showMTip: function (id) {
+      var m = null;
+      for (var i = 0; i < this.meals.length; i++) if (this.meals[i].id === id) { m = this.meals[i]; break; }
+      if (!m || !m.isLondon || !this.mapW) return;
+      var x = this.mapPx(m.lon), y = this.mapPy(m.lat);
+      var left = x + 20, top = y - 14;
+      if (left + 270 > this.mapW && x - 280 >= 8) left = x - 280;
+      left = Math.max(8, Math.min(left, this.mapW - 270));
+      top = Math.max(8, Math.min(top, this.mapH - 130));
+      this.mHoverId = id;
+      this.mTip = { left: Math.round(left), top: Math.round(top), m: m };
+      this.syncMapTip();
+    },
+
+    mapClick: function (ev) {
+      var d = this.mDraft;
+      if (!this.mAdding || !d || !d.isLondon || !this.mapW) return;
+      var c = this.mapCanvas;
+      var b = c.getBoundingClientRect();
+      var x = ev.clientX - b.left, y = ev.clientY - b.top;
+      var lon = M_EXT.lonMin + (x / this.mapW) * (M_EXT.lonMax - M_EXT.lonMin);
+      var lat = M_EXT.latMax - (y / this.mapH) * (M_EXT.latMax - M_EXT.latMin);
+      this.mDraft.lat = +lat.toFixed(4);
+      this.mDraft.lon = +lon.toFixed(4);
+      this.syncMForm();
+    },
+
+    drawMap: function (t) {
+      var c = this.mapCanvas;
+      if (!c || !this.mapW) return;
+      var ctx = c.getContext("2d");
+      var w = this.mapW, h = this.mapH;
+      ctx.save();
+      ctx.setTransform(this.mapDpr, 0, 0, this.mapDpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#1A1611";
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = "rgba(242,237,228,0.07)";
+      ctx.lineWidth = 0.6;
+      for (var lo = -0.22; lo < M_EXT.lonMax; lo += 0.02) {
+        var x = this.mapPx(lo);
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (var la = 51.46; la < M_EXT.latMax; la += 0.01) {
+        var y = this.mapPy(la);
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      var pts = THAMES.map(function (p) { return [this.mapPx(p[0]), this.mapPy(p[1])]; }, this);
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (var i = 1; i < pts.length - 1; i++) {
+        ctx.quadraticCurveTo(pts[i][0], pts[i][1], (pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2);
+      }
+      ctx.lineTo(pts[pts.length - 1][0], pts[pts.length - 1][1]);
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(242,237,228,0.10)";
+      ctx.lineWidth = Math.max(6, w * 0.016);
+      ctx.stroke();
+
+      ctx.font = "9px 'IBM Plex Mono', monospace";
+      ctx.fillStyle = "rgba(242,237,228,0.35)";
+      ctx.fillText("RIVER THAMES", this.mapPx(-0.16), this.mapPy(51.4685));
+      ctx.fillText("51.535° N", 10, 16);
+      ctx.fillText("0.225° W", 10, h - 10);
+      ctx.textAlign = "right";
+      ctx.fillText("0.060° W", w - 10, h - 10);
+      ctx.textAlign = "left";
+
+      var mWishView = this.mView === "wish";
+      for (var j = 0; j < this.meals.length; j++) {
+        var m = this.meals[j];
+        if (!m.isLondon || typeof m.lat !== "number") continue;
+        var mx = this.mapPx(m.lon), my = this.mapPy(m.lat);
+        var isWish = !!m.wish;
+        if (isWish && !mWishView) continue;
+        if (!isWish && mWishView) { diamond(ctx, mx, my, 2.5, true, "rgba(242,237,228,0.25)"); continue; }
+        var n = Math.max(1, Math.min(3, m.stars || 1));
+        var hot = m.id === this.mHoverId;
+        var sp = 11, r = hot ? 6 : 4.5;
+        var x0 = mx - ((n - 1) * sp) / 2;
+        for (var k = 0; k < n; k++) diamond(ctx, x0 + k * sp, my, r, isWish ? false : true);
+        if (isWish) {
+          ctx.setLineDash([3, 4]);
+          ctx.beginPath(); ctx.arc(mx, my, 13 + (n - 1) * 5 + 2 * Math.sin(t / 450 + (m.id % 7)), 0, Math.PI * 2);
+          ctx.strokeStyle = hot ? "rgba(224,138,47,0.8)" : "rgba(224,138,47,0.4)"; ctx.lineWidth = 1; ctx.stroke();
+          ctx.setLineDash([]);
+        } else if (hot) {
+          ctx.beginPath(); ctx.arc(mx, my, 13 + (n - 1) * 5, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(224,138,47,0.7)"; ctx.lineWidth = 1; ctx.stroke();
+        }
+      }
+
+      var d = this.mDraft;
+      if (this.mAdding && d && d.isLondon && typeof d.lat === "number") {
+        var dx = this.mapPx(d.lon), dy = this.mapPy(d.lat);
+        diamond(ctx, dx, dy, 7, false);
+        var r2 = 14 + 5 * Math.abs(Math.sin(t / 400));
+        ctx.beginPath(); ctx.arc(dx, dy, r2, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(224,138,47,0.5)"; ctx.lineWidth = 1; ctx.stroke();
+      }
+      ctx.restore();
+    },
+
+    mSave: function () {
+      var d = this.mDraft;
+      if (!d || !d.name || !d.name.trim()) return;
+      if (d.isLondon && typeof d.lat !== "number") return;
+      var meal = {
+        id: Date.now(),
+        name: d.name.trim(),
+        area: (d.area || "").trim().toUpperCase() || (d.isLondon ? "LONDON" : "—"),
+        cuisine: (d.cuisine || "").trim().toUpperCase(),
+        stars: Math.max(1, Math.min(3, d.stars || 1)),
+        isLondon: !!d.isLondon,
+        wish: !!d.wish,
+        lat: d.lat, lon: d.lon
+      };
+      var meals = this.meals.concat([meal]);
+      this.mPersist(meals);
+      this.mAdding = false;
+      this.mDraft = null;
+      this.mHoverId = meal.isLondon ? meal.id : null;
+      this.mView = meal.wish ? "wish" : "logged";
+      $("mAddBtn").textContent = "ADD A TABLE +";
+      $("mForm").hidden = true;
+      $("mBanner").classList.remove("show");
+      this.renderTables();
+    },
+
+    mRemove: function (id) {
+      var meals = this.meals.filter(function (m) { return m.id !== id; });
+      this.mPersist(meals);
+      this.mHoverId = null;
+      this.mTip = null;
+      this.syncMapTip();
+      this.renderTables();
+    },
+
+    setMView: function (v) {
+      if (this.mView === v) return;
+      this.mView = v;
+      this.mHoverId = null;
+      this.mTip = null;
+      this.syncMapTip();
+      this.renderTables();
+    },
+
+    mToggleAdd: function () {
+      var opening = !this.mAdding;
+      this.mAdding = opening;
+      this.mDraft = opening ? { name: "", area: "", cuisine: "", stars: 1, isLondon: true, lat: null, lon: null, wish: this.mView === "wish" } : null;
+      this.mTip = null;
+      this.mHoverId = null;
+      $("mAddBtn").textContent = opening ? "CLOSE ×" : "ADD A TABLE +";
+      $("mForm").hidden = !opening;
+      this.syncMapTip();
+      this.syncMForm();
+      this.renderTables();
+    },
+
+    syncMForm: function () {
+      var d = this.mDraft;
+      if (!d) { $("mBanner").classList.remove("show"); return; }
+      var hasPin = typeof d.lat === "number";
+
+      $("mFormTitle").textContent = "NEW TABLE — " + (d.isLondon ? (hasPin ? fmtCoords(d.lat, d.lon) : "CLICK THE MAP TO PLACE IT") : "FURTHER AFIELD");
+      $("mBeenBtn").classList.toggle("on", !d.wish);
+      $("mWishBtn").classList.toggle("on", !!d.wish);
+      $("mNameInput").value = d.name || "";
+      $("mLondonBtn").classList.toggle("on", !!d.isLondon);
+      $("mAwayBtn").classList.toggle("on", !d.isLondon);
+      $("mAreaInput").placeholder = d.isLondon ? "AREA — e.g. MAYFAIR" : "CITY, COUNTRY — e.g. KYOTO, JAPAN";
+      $("mAreaInput").value = d.area || "";
+      $("mCuisineInput").value = d.cuisine || "";
+      $("mStar1Btn").classList.toggle("on", d.stars === 1);
+      $("mStar2Btn").classList.toggle("on", d.stars === 2);
+      $("mStar3Btn").classList.toggle("on", d.stars === 3);
+      $("mSaveBtn").textContent = d.wish ? "ADD TO THE LIST ◇" : "LOG IT ◆";
+
+      var banner = $("mBanner");
+      if (d.isLondon && !hasPin) { banner.textContent = "① CLICK THE MAP WHERE THE TABLE IS"; banner.classList.add("show"); }
+      else if (d.isLondon && hasPin) { banner.textContent = "② PIN DROPPED — FILL THE CARD →"; banner.classList.add("show"); }
+      else { banner.classList.remove("show"); }
+    },
+
+    syncMapTip: function () {
+      var t = this.mTip;
+      var el = $("mapTip");
+      if (!t) { el.classList.remove("show"); return; }
+      el.classList.add("show");
+      el.style.left = t.left + "px";
+      el.style.top = t.top + "px";
+      $("mTipKicker").textContent = (t.m.wish ? "SOMEDAY · " : "") + (t.m.area || "—") + " · " + (t.m.cuisine || "—");
+      $("mTipName").textContent = t.m.name;
+      $("mTipStars").textContent = (t.m.wish ? "◇" : "◆").repeat(Math.max(1, Math.min(3, t.m.stars || 1)));
+    },
+
+    renderTables: function () {
+      var self = this;
+      var mWishView = this.mView === "wish";
+      var mLogged = this.meals.filter(function (m) { return !m.wish; });
+      var mWishes = this.meals.filter(function (m) { return m.wish; });
+      var totalStars = mLogged.reduce(function (a, m) { return a + Math.max(1, Math.min(3, m.stars || 1)); }, 0);
+
+      $("mStatLabel").textContent = mLogged.length + " TABLES · " + totalStars + " STARS";
+      $("mLoggedTab").textContent = "EATEN ◆ " + mLogged.length;
+      $("mWishTab").textContent = "SOMEDAY ◇ " + mWishes.length;
+      $("mLoggedTab").classList.toggle("active", !mWishView);
+      $("mWishTab").classList.toggle("active", mWishView);
+
+      function inView(m) { return !!m.wish === mWishView; }
+      var mLondon = this.meals.filter(function (m) { return m.isLondon && inView(m); });
+      var mAway = this.meals.filter(function (m) { return !m.isLondon && inView(m); });
+
+      $("mLondonHeader").textContent = "LONDON — " + mLondon.length + " TABLES";
+      $("mAwayHeader").textContent = "FURTHER AFIELD — " + mAway.length;
+
+      function starsLabel(m) { return (m.wish ? "◇" : "◆").repeat(Math.max(1, Math.min(3, m.stars || 1))); }
+      function meta(m) { return (m.area || "—") + " · " + (m.cuisine || "—"); }
+
+      function buildRow(m, clickable) {
+        var row = document.createElement("div");
+        row.className = "table-row" + (clickable ? " clickable" : "");
+
+        var left = document.createElement("div");
+        var name = document.createElement("div");
+        name.className = "table-name";
+        name.textContent = m.name;
+        var metaEl = document.createElement("div");
+        metaEl.className = "table-meta";
+        metaEl.textContent = meta(m);
+        left.appendChild(name); left.appendChild(metaEl);
+
+        var stars = document.createElement("div");
+        stars.className = "table-stars";
+        stars.textContent = starsLabel(m);
+
+        var remove = document.createElement("button");
+        remove.className = "row-remove";
+        remove.title = "Remove";
+        remove.type = "button";
+        remove.textContent = "×";
+        remove.addEventListener("click", function (ev) { ev.stopPropagation(); self.mRemove(m.id); });
+
+        row.appendChild(left); row.appendChild(stars); row.appendChild(remove);
+
+        if (clickable) {
+          row.addEventListener("click", function () { self.showMTip(m.id); });
+          row.addEventListener("mouseenter", function () { self.mHoverId = m.id; });
+          row.addEventListener("mouseleave", function () { if (self.mHoverId === m.id) { self.mHoverId = null; self.mTip = null; self.syncMapTip(); } });
+        }
+        return row;
+      }
+
+      var londonList = $("mLondonList");
+      londonList.innerHTML = "";
+      mLondon.forEach(function (m) { londonList.appendChild(buildRow(m, true)); });
+
+      var awayList = $("mAwayList");
+      awayList.innerHTML = "";
+      mAway.forEach(function (m) { awayList.appendChild(buildRow(m, false)); });
+    }
+  };
+
+  App.init();
+})();
+</script>
+</body>
+</html>
