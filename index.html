@@ -3,7 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Robert Eyre</title>
+<script>
+  // Dev gate: bounce to the password page until unlocked in this browser.
+  try { if (localStorage.getItem('robert-site-unlocked') !== 'yes') location.replace('gate.html'); } catch (e) {}
+</script>
+<title>Robert Eyre — Enterprise AE & Explorer</title>
+<meta name="description" content="Robert Eyre — enterprise software sales by profession (Enterprise Account Executive, Geo at Cursor from Aug 2026). Volcano summits, safaris and sea turtles the rest of the time. Based in London.">
+<link rel="canonical" href="https://roberteyre.com/">
+<meta name="theme-color" content="#14110D">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzE0MTEwRCIvPjxwYXRoIGQ9Ik0xNiA1IEwyNyAxNiBMMTYgMjcgTDUgMTYgWiIgZmlsbD0iI0UwOEEyRiIvPjwvc3ZnPg==">
+<!-- Open Graph / social link preview -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Robert Eyre">
+<meta property="og:url" content="https://roberteyre.com/">
+<meta property="og:title" content="Robert Eyre — Senior Enterprise AE & Explorer">
+<meta property="og:description" content="Enterprise software sales by profession — volcano summits, safaris and sea turtles the rest of the time. Based in London, at home anywhere.">
+<meta property="og:image" content="https://roberteyre.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Robert Eyre — Senior Enterprise AE & Explorer">
+<meta name="twitter:description" content="Enterprise software sales by profession — volcano summits, safaris and sea turtles the rest of the time. Based in London, at home anywhere.">
+<meta name="twitter:image" content="https://roberteyre.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -132,7 +153,7 @@
 
   <!-- ============ HERO ============ -->
   <div class="hero">
-    <div class="hero-kicker">SENIOR ENTERPRISE ACCOUNT EXECUTIVE · WEIGHTS &amp; BIASES (COREWEAVE)</div>
+    <div class="hero-kicker">ENTERPRISE ACCOUNT EXECUTIVE, GEO · CURSOR — FROM AUG 2026</div>
     <div class="hero-name">Robert<br>Eyre</div>
     <div class="hero-lower">
       <div class="hero-lede">Enterprise software sales by profession. Volcano summits, safaris and sea turtles the rest of the time. Based in London, at home anywhere.</div>
@@ -145,6 +166,7 @@
             </svg>
             <div class="slot-cap">Portrait</div>
           </div>
+          <img src="portrait.jpg" alt="Robert Eyre" onerror="this.remove()" style="position:relative; z-index:1; width:100%; height:100%; object-fit:cover; object-position:center;">
         </div>
       </div>
     </div>
@@ -194,11 +216,11 @@
   <!-- ============ CONTACT ============ -->
   <div id="hello" class="contact">
     <div class="contact-kicker">SAY HELLO</div>
-    <a href="mailto:hello@example.com" class="contact-big">Let's find<br>common ground →</a>
+    <a href="mailto:robert.c.nicholls@gmail.com" class="contact-big">Let's find<br>common ground →</a>
     <div class="contact-foot">
       <div class="contact-socials">
-        <a href="#">LINKEDIN</a>
-        <a href="mailto:hello@example.com">EMAIL</a>
+        <a href="https://www.linkedin.com/in/robert-eyre-6664481a7/" target="_blank" rel="noopener">LINKEDIN</a>
+        <a href="mailto:robert.c.nicholls@gmail.com">EMAIL</a>
       </div>
       <div>LONDON · GMT — © 2026</div>
     </div>
@@ -222,16 +244,16 @@
   var creds = [
     { big: "5 yrs", label: "SDR to Senior Enterprise AE" },
     { big: "Club", label: "Snowflake President's Club, Mexico" },
-    { big: "2", label: "Summits — Fuji & Fuego" },
+    { big: "4", label: "Summits — Fuji, Fuego, Snowdon & LangBiang" },
     { big: "10+", label: "Michelin-starred tables, incl. two 3-stars" }
   ];
 
   var roles = [
-    { dates: "2025 — NOW", title: "Senior Enterprise Account Executive", company: "Weights & Biases (CoreWeave)", tag: "AI INFRA" },
+    { dates: "2026 — NOW", title: "Enterprise Account Executive, Geo", company: "Cursor", tag: "AI CODING" },
+    { dates: "2025 — 2026", title: "Senior Enterprise Account Executive", company: "Weights & Biases (CoreWeave)", tag: "AI INFRA" },
     { dates: "2023 — 2025", title: "Account Executive", company: "Sigma Computing", tag: "ANALYTICS" },
-    { dates: "2022 — 2023", title: "Corporate → Enterprise AE", company: "Snowflake", tag: "DATA CLOUD" },
-    { dates: "2021 — 2022", title: "Commercial Account Executive", company: "Hootsuite", tag: "SAAS" },
-    { dates: "2020 — 2021", title: "SDR → Corporate SDR", company: "Outreach", tag: "THE START" }
+    { dates: "2021 — 2023", title: "Corporate → Enterprise AE", company: "Snowflake", tag: "DATA CLOUD" },
+    { dates: "2020 — 2021", title: "SDR → Commercial Account Executive", company: "Outreach", tag: "THE START" }
   ];
 
   var fieldNotes = [

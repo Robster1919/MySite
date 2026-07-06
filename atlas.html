@@ -3,7 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  // Dev gate: bounce to the password page until unlocked in this browser.
+  try { if (localStorage.getItem('robert-site-unlocked') !== 'yes') location.replace('gate.html'); } catch (e) {}
+</script>
 <title>The Atlas — Robert Eyre</title>
+<meta name="description" content="The Atlas — a living map of everywhere Robert Eyre has actually stood, plus a street-true chart of the Michelin tables. Ground truth, plotted first-hand.">
+<link rel="canonical" href="https://roberteyre.com/atlas.html">
+<meta name="theme-color" content="#14110D">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzE0MTEwRCIvPjxwYXRoIGQ9Ik0xNiA1IEwyNyAxNiBMMTYgMjcgTDUgMTYgWiIgZmlsbD0iI0UwOEEyRiIvPjwvc3ZnPg==">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Robert Eyre">
+<meta property="og:url" content="https://roberteyre.com/atlas.html">
+<meta property="og:title" content="The Atlas — Robert Eyre">
+<meta property="og:description" content="A living map of everywhere I've actually stood, plus a street-true chart of the Michelin tables. Ground truth, plotted first-hand.">
+<meta property="og:image" content="https://roberteyre.com/og-atlas.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Atlas — Robert Eyre">
+<meta name="twitter:description" content="A living map of everywhere I've actually stood, plus a street-true chart of the Michelin tables.">
+<meta name="twitter:image" content="https://roberteyre.com/og-atlas.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -319,7 +339,17 @@
       { id: 27, name: "New York, the classic", loc: "NEW YORK, USA", when: "", note: "Observatory views, parties and steak dinners at full speed.", lat: 40.7484, lon: -73.9857 },
       { id: 28, name: "Top down in Miami", loc: "MIAMI, USA", when: "", note: "24-hour parties and boulevard chaos, roof off.", lat: 25.7617, lon: -80.1918 },
       { id: 29, name: "Honky Tonk Highway", loc: "NASHVILLE, USA", when: "", note: "Proper BBQ, neon signs and live music till late.", lat: 36.1627, lon: -86.7816 },
-      { id: 30, name: "6th Street & Franklin BBQ", loc: "AUSTIN, USA", when: "", note: "A shed that became a club, Clydesdales on 6th, Rogan's comedy club, Franklin to finish.", lat: 30.2672, lon: -97.7431 }
+      { id: 30, name: "6th Street & Franklin BBQ", loc: "AUSTIN, USA", when: "", note: "A shed that became a club, Clydesdales on 6th, Rogan's comedy club, Franklin to finish.", lat: 30.2672, lon: -97.7431 },
+      { id: 31, name: "The Paris classics", loc: "PARIS, FRANCE", when: "", note: "Louvre, Notre-Dame and rooftop views — art, history and skyline glamour in one hit.", lat: 48.8566, lon: 2.3522 },
+      { id: 32, name: "Nice & Èze", loc: "FRENCH RIVIERA", when: "", note: "Beaches in Nice, the hike up Èze, and that effortlessly cinematic Riviera pace.", lat: 43.7102, lon: 7.262 },
+      { id: 33, name: "Zurich & Uetliberg", loc: "SWITZERLAND", when: "", note: "Lake days, the climb up Uetliberg, paddleboarding through unfairly perfect scenery.", lat: 47.3769, lon: 8.5417 },
+      { id: 34, name: "Geneva", loc: "SWITZERLAND", when: "", note: "Swam the lake, toured the Patek Philippe Museum — watchmaking-and-waterfront polish.", lat: 46.2044, lon: 6.1432 },
+      { id: 35, name: "Chamonix & Mont Blanc", loc: "FRENCH ALPS", when: "", note: "Up to the Mont Blanc station — views that make everything bigger, sharper, colder.", lat: 45.9237, lon: 6.8694 },
+      { id: 36, name: "Berlin", loc: "GERMANY", when: "", note: "History, edge, nightlife and creative chaos — a city that never fully explains itself.", lat: 52.52, lon: 13.405 },
+      { id: 37, name: "Prague", loc: "CZECHIA", when: "", note: "Old streets and a castle skyline — a Gothic storybook after a few beers.", lat: 50.0755, lon: 14.4378 },
+      { id: 38, name: "Vienna & the Zombie", loc: "AUSTRIA", when: "", note: "Palaces and museums, then a first 'Zombie' — less imperial, more memorable.", lat: 48.2082, lon: 16.3738 },
+      { id: 39, name: "Athens & the Islands", loc: "GREECE", when: "", note: "The ancient weight of Athens, then island-hopping to Santorini's postcard sunsets.", lat: 36.3932, lon: 25.4615 },
+      { id: 40, name: "Bucharest & the lakes", loc: "ROMANIA", when: "", note: "Old Town, the 'Lake District', and Mr Castillo's lesson in how good a gyro is.", lat: 44.4268, lon: 26.1025 }
     ];
   }
 
@@ -408,18 +438,28 @@
       this.canvas = $("globeCanvas");
       this.mapCanvas = $("mapCanvas");
 
-      var entries = null;
-      try { entries = JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch (e) {}
-      if (!Array.isArray(entries) || entries.length === 0) {
-        entries = seed().concat(wishSeed());
-        this.persist(entries);
+      // Merge hardcoded seeds with any stored data so the curated pins/tables
+      // always show — for fresh visitors AND returning ones with older data.
+      // Any entries the visitor added themselves (their own ids) are preserved.
+      function mergeSeeds(stored, baseline) {
+        if (!Array.isArray(stored)) stored = [];
+        var have = {};
+        stored.forEach(function (e) { if (e && e.id != null) have[e.id] = true; });
+        var merged = stored.slice();
+        baseline.forEach(function (b) { if (!have[b.id]) merged.push(b); });
+        return merged;
       }
-      var meals = null;
-      try { meals = JSON.parse(localStorage.getItem(M_KEY) || "null"); } catch (e) {}
-      if (!Array.isArray(meals) || meals.length === 0) {
-        meals = mSeed().concat(mWishSeed());
-        this.mPersist(meals);
-      }
+
+      var storedEntries = null;
+      try { storedEntries = JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch (e) {}
+      var entries = mergeSeeds(storedEntries, seed().concat(wishSeed()));
+      this.persist(entries);
+
+      var storedMeals = null;
+      try { storedMeals = JSON.parse(localStorage.getItem(M_KEY) || "null"); } catch (e) {}
+      var meals = mergeSeeds(storedMeals, mSeed().concat(mWishSeed()));
+      this.mPersist(meals);
+
       this.entries = entries;
       this.meals = meals;
 
