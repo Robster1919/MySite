@@ -118,8 +118,8 @@
   .globe-tip .gt-name { font-weight: 900; font-stretch: 112%; font-size: 16px; line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; }
   .field-photos { display: grid; grid-template-rows: repeat(3, 1fr); gap: 20px; min-height: 560px; }
   .field-photos .field-card { min-height: 0; overflow: hidden; }
-  /* image is taken out of flow so its natural height can't inflate the row —
-     the row height is governed by the grid track, matching the globe box */
+  /* image pinned out of flow, cover-cropped; per-photo pan (object-position) and
+     zoom (transform: scale) are applied inline to match the Claude Design reframe */
   .field-photos .field-card .slot { flex: 1 1 0; min-height: 0; height: auto; }
   .field-photos .field-card .slot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
@@ -294,15 +294,18 @@
     { dates: "2020 — 2021", title: "SDR → Commercial Account Executive", company: "Outreach", tag: "THE START" }
   ];
 
-  // objPos = object-position for the cover-crop in the wide (~2.6:1) card,
-  // keeping the subject (summit / monument) centred in the frame.
+  // Per-photo vertical framing (pan only — no zoom). The photos load full-height,
+  // and objPos slides them up/down inside the card via object-position "x% y%":
+  //   "50% 100%" = image BOTTOM rests on the card bottom (top is cropped)
+  //   "50% 0%"   = image TOP rests on the card top (bottom is cropped)
+  // Change only the second number to move a photo up (lower %) or down (higher %).
   var fieldNotes = [
-    { title: "Fuego at night", loc: "GUATEMALA", placeholder: "Volcano shot — lava glow", objPos: "50% 38%",
-      src: "https://images.unsplash.com/photo-1768452523244-11bba3ab7d51?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.38" },
-    { title: "Fuji summit", loc: "JAPAN", placeholder: "Summit photo", objPos: "50% 35%",
-      src: "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.35" },
-    { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "Desert shot", objPos: "50% 50%",
-      src: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.5" }
+    { title: "Fuego at night", loc: "GUATEMALA", placeholder: "Volcano shot — lava glow", objPos: "50% 100%",
+      src: "https://images.unsplash.com/photo-1768452523244-11bba3ab7d51?q=80&w=1400&auto=format&fit=crop" },
+    { title: "Fuji summit", loc: "JAPAN", placeholder: "Summit photo", objPos: "50% 85%",
+      src: "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=1400&auto=format&fit=crop" },
+    { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "Desert shot", objPos: "50% 100%",
+      src: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?q=80&w=1400&auto=format&fit=crop" }
   ];
 
   var nextUp = [
