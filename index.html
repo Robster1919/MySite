@@ -117,8 +117,11 @@
   .globe-tip .gt-loc { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: #E08A2F; margin-bottom: 5px; }
   .globe-tip .gt-name { font-weight: 900; font-stretch: 112%; font-size: 16px; line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; }
   .field-photos { display: grid; grid-template-rows: repeat(3, 1fr); gap: 20px; min-height: 560px; }
-  .field-photos .field-card { min-height: 0; }
-  .field-photos .field-card .slot { flex: 1; height: auto; min-height: 0; }
+  .field-photos .field-card { min-height: 0; overflow: hidden; }
+  /* image is taken out of flow so its natural height can't inflate the row —
+     the row height is governed by the grid track, matching the globe box */
+  .field-photos .field-card .slot { flex: 1 1 0; min-height: 0; height: auto; }
+  .field-photos .field-card .slot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
   /* next up */
   .next { padding: 88px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); background: #1B1712; }

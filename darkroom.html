@@ -33,7 +33,6 @@
   .plates { padding: 48px; display: flex; flex-direction: column; gap: 20px; border-bottom: 1px solid rgba(242,237,228,0.12); }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .plate { border: 1px solid rgba(242,237,228,0.12); display: block; }
-  .plate:hover { border-color: rgba(224,138,47,0.6); }
   .plate-img { position: relative; }
   .plate-img img { display: block; width: 100%; height: auto; }
   .plate-img .ph { display: none; }
@@ -107,10 +106,9 @@
   ];
 
   function plateEl(p) {
-    var fig = document.createElement("a");
+    var fig = document.createElement("figure");
     fig.className = "plate";
-    fig.href = "photos/" + p.slug + ".png";
-    fig.target = "_blank"; fig.rel = "noopener";
+    fig.style.margin = "0";
 
     var imgWrap = document.createElement("div");
     imgWrap.className = "plate-img " + p.size;
