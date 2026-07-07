@@ -294,12 +294,14 @@
     { dates: "2020 — 2021", title: "SDR → Commercial Account Executive", company: "Outreach", tag: "THE START" }
   ];
 
+  // objPos = object-position for the cover-crop in the wide (~2.6:1) card,
+  // keeping the subject (summit / monument) centred in the frame.
   var fieldNotes = [
-    { title: "Fuego at night", loc: "GUATEMALA", placeholder: "Volcano shot — lava glow",
+    { title: "Fuego at night", loc: "GUATEMALA", placeholder: "Volcano shot — lava glow", objPos: "50% 38%",
       src: "https://images.unsplash.com/photo-1768452523244-11bba3ab7d51?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.38" },
-    { title: "Fuji summit", loc: "JAPAN", placeholder: "Summit photo",
+    { title: "Fuji summit", loc: "JAPAN", placeholder: "Summit photo", objPos: "50% 35%",
       src: "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.35" },
-    { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "Desert shot",
+    { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "Desert shot", objPos: "50% 50%",
       src: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.5" }
   ];
 
@@ -357,6 +359,7 @@
       img.src = f.src;
       img.alt = f.title;
       img.loading = "lazy";
+      if (f.objPos) img.style.objectPosition = f.objPos;
       slot.appendChild(img);
     } else {
       slot.appendChild(el("div", "slot-ring"));
@@ -401,7 +404,9 @@
         if (Array.isArray(saved) && saved.length) {
           var have = {};
           base.forEach(function (e) { if (e.id != null) have[e.id] = true; });
-          saved.forEach(function (e) { if (e.id == null || !have[e.id]) merged.push(e); });
+          // only keep rows the visitor added themselves (Date.now ids), so edited/
+          // removed curated pins reflect pins.js rather than lingering from old data
+          saved.forEach(function (e) { if (typeof e.id === "number" && e.id >= 1000000000000 && !have[e.id]) merged.push(e); });
         }
       } catch (e) {}
       return { list: merged.filter(function (e) { return !e.wish && typeof e.lat === "number"; }), real: true };

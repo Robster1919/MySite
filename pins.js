@@ -1,17 +1,12 @@
-/*
- * pins.js — the single source of truth for the Atlas.
- * Edit THIS file to add / change places and Michelin tables; both the landing-page
- * globe and the Atlas page read from window.ATLAS_DATA below.
- *
- *   entries      — places you've been (show as solid ◆ pins)
- *   wishes       — places on the list (show as hollow ◇ on the Atlas "Someday" tab)
- *   meals        — Michelin tables eaten
- *   mealWishes   — Michelin tables on the list
- *
- * To add a place: copy a line, give it a new unique id, fill in the fields.
- * lat/lon are decimal degrees (N and E positive; S and W negative).
- */
+// ============================================================
+// THE LEDGER — single source of truth for Robert's Atlas.
+// Loaded by both Landing Page.dc.html and Atlas.dc.html.
+// To add a trip or a table permanently, add a row here and
+// commit — both pages pick it up automatically.
+// ============================================================
 window.ATLAS_DATA = {
+
+  // ---- Places been (globe pins) ----
   entries: [
     { id: 1, name: "Home base", loc: "LONDON, UK", when: "ALWAYS", note: "51° north. Where the passport lives between trips.", lat: 51.4993, lon: -0.1938 },
     { id: 2, name: "Lived & taught", loc: "VIETNAM", when: "", note: "A year of teaching, motorbikes and pho for breakfast.", lat: 16.0544, lon: 108.2022 },
@@ -21,7 +16,7 @@ window.ATLAS_DATA = {
     { id: 6, name: "Scuba in the Red Sea", loc: "SHARM EL SHEIKH, EGYPT", when: "", note: "Reefs with visibility for days.", lat: 27.9158, lon: 34.33 },
     { id: 7, name: "Jet ski, island to island", loc: "CROATIA", when: "", note: "An Adriatic crossing between the Dalmatian islands.", lat: 43.38, lon: 16.44 },
     { id: 8, name: "Wild sea turtles", loc: "AUSTRALIA", when: "", note: "Swam alongside them on the southern Great Barrier Reef.", lat: -23.9, lon: 152.08 },
-    { id: 9, name: "Kjeragbolten", loc: "NORWAY", when: "", note: "Stood on the boulder. Once was enough.", lat: 59.0336, lon: 6.5931 },
+    { id: 9, name: "The Lysefjord double", loc: "NORWAY", when: "", note: "Stood on the Kjerag boulder, then Preikestolen's 604-metre drop. Once was enough, twice.", lat: 59.0336, lon: 6.5931 },
     { id: 10, name: "Caesars Palace poker champion", loc: "LAS VEGAS, USA", when: "", note: "Walked in a tourist, walked out a champion.", lat: 36.1162, lon: -115.1745 },
     { id: 11, name: "President's Club", loc: "PUNTA DE MITA, MEXICO", when: "SNOWFLAKE", note: "Earned the trip. Took the win, kept the tan.", lat: 20.7699, lon: -105.5185 },
     { id: 12, name: "Inside the Pyramids", loc: "GIZA, EGYPT", when: "", note: "Stepped into an ancient tomb — walking straight into history.", lat: 29.9773, lon: 31.1325 },
@@ -32,20 +27,20 @@ window.ATLAS_DATA = {
     { id: 17, name: "Skydive over the Palm", loc: "DUBAI, UAE", when: "", note: "Jumped over Palm Jumeirah, then New Year's under the Burj Khalifa.", lat: 25.092, lon: 55.1381 },
     { id: 18, name: "Bruges & Brussels", loc: "BELGIUM", when: "", note: "Fairy-tale canals, then the chocolate-and-beer-soaked charm of Brussels.", lat: 51.2093, lon: 3.2247 },
     { id: 19, name: "Copenhagen", loc: "DENMARK", when: "", note: "Crown Jewels, Michelin Guide sandwiches and Christiania's free-spirited side.", lat: 55.6761, lon: 12.5683 },
-    { id: 20, name: "Venice, Rome & Milan", loc: "ITALY", when: "", note: "Canals to ancient streets to polished style — the full sweep of Italy.", lat: 41.9028, lon: 12.4964 },
+    { id: 20, name: "Venice, Rome & Milan", loc: "ITALY", when: "", note: "Canals to ancient streets to polished style — the full sweep of Italy.", lat: 45.4642, lon: 9.19 },
     { id: 21, name: "Champagne at Café de Paris", loc: "MONACO", when: "", note: "The first bottle. Appropriately ridiculous and glamorous.", lat: 43.7403, lon: 7.4278 },
     { id: 22, name: "Teenage years abroad", loc: "NETHERLANDS", when: "AGE 13–16", note: "Lived between Amsterdam and Den Haag — three years that shaped everything.", lat: 52.0705, lon: 4.3007 },
     { id: 23, name: "The Algarve", loc: "PORTUGAL", when: "", note: "Ate incredibly well, seaside pace the whole way.", lat: 37.0179, lon: -7.9304 },
     { id: 24, name: "Sagrada Família", loc: "BARCELONA, SPAIN", when: "", note: "Ancient, unfinished and otherworldly all at once.", lat: 41.4036, lon: 2.1744 },
     { id: 25, name: "The Vatican & vaults", loc: "VATICAN CITY", when: "", note: "Centuries of power, art, secrecy and spectacle.", lat: 41.9029, lon: 12.4534 },
     { id: 26, name: "Lucha libre & tacos", loc: "MEXICO CITY, MEXICO", when: "", note: "Lucha libre, a Michelin-recognised taco stand and tequila tasting.", lat: 19.4326, lon: -99.1332 },
-    { id: 27, name: "New York, the classic", loc: "NEW YORK, USA", when: "", note: "Observatory views, parties and steak dinners at full speed.", lat: 40.7484, lon: -73.9857 },
+    { id: 27, name: "The Garden & Katz's", loc: "NEW YORK, USA", when: "", note: "Knicks and Rangers at MSG, pastrami at Katz's — sports and sandwiches done properly.", lat: 40.7505, lon: -73.9934 },
     { id: 28, name: "Top down in Miami", loc: "MIAMI, USA", when: "", note: "24-hour parties and boulevard chaos, roof off.", lat: 25.7617, lon: -80.1918 },
     { id: 29, name: "Honky Tonk Highway", loc: "NASHVILLE, USA", when: "", note: "Proper BBQ, neon signs and live music till late.", lat: 36.1627, lon: -86.7816 },
     { id: 30, name: "6th Street & Franklin BBQ", loc: "AUSTIN, USA", when: "", note: "A shed that became a club, Clydesdales on 6th, Rogan's comedy club, Franklin to finish.", lat: 30.2672, lon: -97.7431 },
     { id: 31, name: "The Paris classics", loc: "PARIS, FRANCE", when: "", note: "Louvre, Notre-Dame and rooftop views — art, history and skyline glamour in one hit.", lat: 48.8566, lon: 2.3522 },
     { id: 32, name: "Nice & Èze", loc: "FRENCH RIVIERA", when: "", note: "Beaches in Nice, the hike up Èze, and that effortlessly cinematic Riviera pace.", lat: 43.7102, lon: 7.262 },
-    { id: 33, name: "Zurich & Uetliberg", loc: "SWITZERLAND", when: "", note: "Lake days, the climb up Uetliberg, paddleboarding through unfairly perfect scenery.", lat: 47.3769, lon: 8.5417 },
+    { id: 33, name: "Uetliberg climb", loc: "ZURICH, SWITZERLAND", when: "", note: "Climbed above the city, then paddleboarded scenery Switzerland makes look unfairly perfect.", lat: 47.3769, lon: 8.5417 },
     { id: 34, name: "Geneva", loc: "SWITZERLAND", when: "", note: "Swam the lake, toured the Patek Philippe Museum — watchmaking-and-waterfront polish.", lat: 46.2044, lon: 6.1432 },
     { id: 35, name: "Chamonix & Mont Blanc", loc: "FRENCH ALPS", when: "", note: "Up to the Mont Blanc station — views that make everything bigger, sharper, colder.", lat: 45.9237, lon: 6.8694 },
     { id: 36, name: "Berlin", loc: "GERMANY", when: "", note: "History, edge, nightlife and creative chaos — a city that never fully explains itself.", lat: 52.52, lon: 13.405 },
@@ -53,38 +48,65 @@ window.ATLAS_DATA = {
     { id: 38, name: "Vienna & the Zombie", loc: "AUSTRIA", when: "", note: "Palaces and museums, then a first 'Zombie' — less imperial, more memorable.", lat: 48.2082, lon: 16.3738 },
     { id: 39, name: "Athens & the Islands", loc: "GREECE", when: "", note: "The ancient weight of Athens, then island-hopping to Santorini's postcard sunsets.", lat: 36.3932, lon: 25.4615 },
     { id: 40, name: "Bucharest & the lakes", loc: "ROMANIA", when: "", note: "Old Town, the 'Lake District', and Mr Castillo's lesson in how good a gyro is.", lat: 44.4268, lon: 26.1025 },
-    { id: 41, name: "Snowdon summit", loc: "WALES", when: "", note: "Up through the cloud line to the roof of Wales, and back down before the weather turned.", lat: 53.0685, lon: -4.0763 },
-    { id: 42, name: "LangBiang summit", loc: "DA LAT, VIETNAM", when: "", note: "The climb above Da Lat — the central highlands laid out green and endless.", lat: 12.0464, lon: 108.4419 },
-    { id: 43, name: "Preikestolen", loc: "NORWAY", when: "", note: "The hike to Pulpit Rock — 604m of sheer nothing straight down to Lysefjord.", lat: 58.9864, lon: 6.1904 }
+    { id: 41, name: "Snowdon summit", loc: "WALES", when: "", note: "Up and over the top of Wales.", lat: 53.0685, lon: -4.0763 },
+    { id: 42, name: "LangBiang summit", loc: "DA LAT, VIETNAM", when: "", note: "Above the pines of the Central Highlands.", lat: 12.0464, lon: 108.4419 },
+    { id: 44, name: "NYE over the Harbour", loc: "SYDNEY, AUSTRALIA", when: "", note: "New Year's fireworks off the Harbour Bridge — the one every other city copies.", lat: -33.8523, lon: 151.2108 },
+    { id: 45, name: "First class to Tokyo", loc: "JAPAN", when: "", note: "Turned left for the first time, landed in the Shibuya scramble.", lat: 35.6595, lon: 139.7005 },
+    { id: 46, name: "Kyoto, properly", loc: "JAPAN", when: "", note: "Temples, torii gates and a two-star kaiseki at Kikunoi Roan.", lat: 35.0116, lon: 135.7681 },
+    { id: 47, name: "Dotonbori by neon", loc: "OSAKA, JAPAN", when: "", note: "Street food under the Glico man — Osaka feeds you until you surrender.", lat: 34.6687, lon: 135.5013 },
+    { id: 48, name: "The Yosemite roadtrip", loc: "CALIFORNIA, USA", when: "AS A KID", note: "LA to San Francisco to Yosemite — the classic American roadtrip, early.", lat: 37.8651, lon: -119.5383 },
+    { id: 49, name: "Warriors, tiki & Tony's", loc: "SAN FRANCISCO, USA", when: "", note: "Warriors at Chase, a tiki bar crawl, and Tony's — allegedly the world's best pizza.", lat: 37.7749, lon: -122.4194 },
   ],
 
+  // ---- Places to go (wish pins) ----
   wishes: [
-    { id: 51, name: "Torres del Paine", loc: "PATAGONIA, CHILE", when: "", note: "The W trek, end to end.", lat: -50.9423, lon: -73.4068, wish: true },
-    { id: 52, name: "Gorillas in the mist", loc: "RWANDA", when: "", note: "Volcanoes NP — one hour with a habituated troop.", lat: -1.4795, lon: 29.4926, wish: true },
-    { id: 53, name: "Aurora, properly", loc: "TROMSØ, NORWAY", when: "", note: "69° north in deep winter, camera ready.", lat: 69.6492, lon: 18.9553, wish: true }
+    { id: 61, name: "The Mara, booked", loc: "MASAI MARA, KENYA", when: "BOOKED — SEPT 2026", note: "First safari, camera in hand — the WPOTY entry starts here.", lat: -1.4061, lon: 35.0117, wish: true },
+    { id: 62, name: "Watch a launch", loc: "CAPE CANAVERAL, USA", when: "", note: "Feel a SpaceX launch shake the ground from the causeway.", lat: 28.3922, lon: -80.6077, wish: true },
+    { id: 63, name: "Aurora, properly", loc: "TROMSØ, NORWAY", when: "", note: "69° north in deep winter — the vivid kind, not the faint smudge.", lat: 69.6492, lon: 18.9553, wish: true },
+    { id: 64, name: "Island-hop Hawaii", loc: "HAWAII, USA", when: "", note: "Volcanoes, reefs and roads between islands.", lat: 20.7984, lon: -156.3319, wish: true },
+    { id: 65, name: "The Inca Trail", loc: "PERU", when: "", note: "Four days on foot to the Sun Gate at dawn.", lat: -13.1631, lon: -72.545, wish: true },
+    { id: 66, name: "Zero gravity", loc: "LOW EARTH ORBIT (EVENTUALLY)", when: "", note: "Weightless, by parabolic flight or better.", lat: 24.0, lon: -38.0, wish: true },
+    { id: 67, name: "A live eruption", loc: "STROMBOLI, ITALY", when: "", note: "Fuego from a neighbouring peak was the trailer. Front row next.", lat: 38.789, lon: 15.213, wish: true },
+    { id: 68, name: "Tramp the South Island", loc: "NEW ZEALAND", when: "", note: "The great walks — fjords, ridgelines and huts.", lat: -44.6721, lon: 167.925, wish: true },
+    { id: 69, name: "Trek the ice sheet", loc: "GREENLAND", when: "", note: "The Arctic Circle Trail — days without a road in sight.", lat: 66.9395, lon: -50.6963, wish: true },
+    { id: 70, name: "Yellowstone on foot", loc: "WYOMING, USA", when: "", note: "Geysers, wolves and backcountry miles.", lat: 44.428, lon: -110.5885, wish: true },
+    { id: 71, name: "Lemurs & baobabs", loc: "MADAGASCAR", when: "", note: "An island that evolved on its own terms — explore accordingly.", lat: -18.7669, lon: 46.8691, wish: true },
+    { id: 72, name: "Penguins & icebergs", loc: "ANTARCTICA", when: "", note: "The seventh continent — colonies, bergs and silence.", lat: -64.8, lon: -63.5, wish: true },
+    { id: 73, name: "Bears at the falls", loc: "KATMAI, ALASKA", when: "", note: "Brown bears catching salmon mid-air at Brooks Falls, camera ready.", lat: 58.5551, lon: -155.7778, wish: true },
+    { id: 74, name: "Gorillas in the mist", loc: "BWINDI, UGANDA", when: "", note: "One hour with a mountain gorilla troop — earned on foot.", lat: -1.0586, lon: 29.6621, wish: true },
+    { id: 75, name: "Overwater, underwater", loc: "MALDIVES", when: "", note: "Reef diving by day, a villa on stilts by night.", lat: 3.2028, lon: 73.2207, wish: true },
+    { id: 76, name: "Everest Base Camp", loc: "NEPAL", when: "", note: "Two weeks up the Khumbu to 5,364m — the big one's front porch.", lat: 28.0043, lon: 86.8571, wish: true },
+    { id: 77, name: "Kilimanjaro", loc: "TANZANIA", when: "", note: "Five climate zones to the roof of Africa. Summit #6, properly earned.", lat: -3.0674, lon: 37.3556, wish: true },
+    { id: 78, name: "Mont-Saint-Michel", loc: "NORMANDY, FRANCE", when: "", note: "The abbey on the tide — arrive when the sea cuts it off.", lat: 48.636, lon: -1.5114, wish: true },
   ],
 
+  // ---- Michelin tables eaten ----
   meals: [
     { id: 101, name: "CORE by Clare Smyth", area: "NOTTING HILL", cuisine: "MODERN BRITISH", stars: 3, isLondon: true, lat: 51.5137, lon: -0.2010 },
-    { id: 102, name: "Dinner by Heston Blumenthal", area: "KNIGHTSBRIDGE", cuisine: "TRADITIONAL BRITISH", stars: 1, isLondon: true, lat: 51.5021, lon: -0.1600 },
+    { id: 102, name: "Dinner by Heston Blumenthal", area: "KNIGHTSBRIDGE", cuisine: "TRADITIONAL BRITISH", stars: 2, isLondon: true, lat: 51.5021, lon: -0.1600 },
     { id: 103, name: "A. Wong", area: "VICTORIA", cuisine: "CHINESE", stars: 2, isLondon: true, lat: 51.4926, lon: -0.1420 },
     { id: 104, name: "Restaurant Story", area: "BERMONDSEY", cuisine: "MODERN CUISINE", stars: 2, isLondon: true, lat: 51.5027, lon: -0.0766 },
-    { id: 105, name: "Humble Chicken", area: "SOHO", cuisine: "JAPANESE", stars: 1, isLondon: true, lat: 51.5136, lon: -0.1318 },
+    { id: 105, name: "Humble Chicken", area: "SOHO", cuisine: "JAPANESE", stars: 2, isLondon: true, lat: 51.5136, lon: -0.1318 },
+    { id: 117, name: "La Dame de Pic", area: "TOWER BRIDGE", cuisine: "FRENCH", stars: 2, isLondon: true, lat: 51.5097, lon: -0.0787 },
     { id: 106, name: "Angler", area: "MOORGATE", cuisine: "SEAFOOD", stars: 1, isLondon: true, lat: 51.5199, lon: -0.0864 },
     { id: 107, name: "Murano", area: "MAYFAIR", cuisine: "ITALIAN", stars: 1, isLondon: true, lat: 51.5079, lon: -0.1489 },
     { id: 108, name: "Galvin La Chapelle", area: "SPITALFIELDS", cuisine: "FRENCH", stars: 1, isLondon: true, lat: 51.5195, lon: -0.0786 },
     { id: 109, name: "HIDE", area: "PICCADILLY", cuisine: "MODERN BRITISH", stars: 1, isLondon: true, lat: 51.5066, lon: -0.1440 },
     { id: 110, name: "Sushi Kanesaka", area: "MAYFAIR", cuisine: "JAPANESE", stars: 1, isLondon: true, lat: 51.5063, lon: -0.1522 },
-    { id: 111, name: "Cornucopia by Clare Smyth", area: "NOTTING HILL", cuisine: "TRADITIONAL BRITISH", stars: 1, isLondon: true, lat: 51.5150, lon: -0.2035 },
+    { id: 111, name: "Cornucopia by Clare Smyth", area: "PIMLICO", cuisine: "TRADITIONAL BRITISH", stars: 1, isLondon: true, lat: 51.4901, lon: -0.1497 },
     { id: 112, name: "Dorian", area: "NOTTING HILL", cuisine: "MODERN BRITISH", stars: 1, isLondon: true, lat: 51.5158, lon: -0.1990 },
     { id: 113, name: "The Harwood Arms", area: "FULHAM", cuisine: "BRITISH GASTROPUB", stars: 1, isLondon: true, lat: 51.4808, lon: -0.1962 },
+    { id: 118, name: "City Social", area: "OLD BROAD ST", cuisine: "MODERN BRITISH", stars: 1, isLondon: true, lat: 51.5156, lon: -0.0846 },
+    { id: 119, name: "Oncore by Clare Smyth", area: "SYDNEY, AUSTRALIA", cuisine: "MODERN BRITISH", stars: 3, isLondon: false, lat: -33.8393, lon: 151.2153 },
     { id: 114, name: "Kikunoi Roan", area: "KYOTO, JAPAN", cuisine: "JAPANESE", stars: 2, isLondon: false, lat: 35.0035, lon: 135.7710 },
     { id: 115, name: "San Ho Won", area: "SAN FRANCISCO, USA", cuisine: "KOREAN", stars: 1, isLondon: false, lat: 37.7614, lon: -122.4091 },
-    { id: 116, name: "Moss", area: "GRINDAVÍK, ICELAND", cuisine: "MODERN CUISINE", stars: 1, isLondon: false, lat: 63.8804, lon: -22.4495 }
+    { id: 116, name: "Moss", area: "GRINDAVÍK, ICELAND", cuisine: "MODERN CUISINE", stars: 1, isLondon: false, lat: 63.8804, lon: -22.4495 },
+    { id: 120, name: "Taqueria El Califa de León", area: "MEXICO CITY, MEXICO", cuisine: "MEXICAN", stars: 1, isLondon: false, lat: 19.4443, lon: -99.1541 },
   ],
 
+  // ---- Michelin tables to book ----
   mealWishes: [
     { id: 151, name: "The Ledbury", area: "NOTTING HILL", cuisine: "MODERN BRITISH", stars: 3, isLondon: true, lat: 51.5111, lon: -0.2003, wish: true },
-    { id: 152, name: "Ikoyi", area: "THE STRAND", cuisine: "CREATIVE", stars: 2, isLondon: true, lat: 51.5104, lon: -0.1200, wish: true }
-  ]
+    { id: 152, name: "Ikoyi", area: "THE STRAND", cuisine: "CREATIVE", stars: 2, isLondon: true, lat: 51.5104, lon: -0.1200, wish: true },
+  ],
 };

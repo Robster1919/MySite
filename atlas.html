@@ -446,26 +446,29 @@
       this.canvas = $("globeCanvas");
       this.mapCanvas = $("mapCanvas");
 
-      // Merge hardcoded seeds with any stored data so the curated pins/tables
-      // always show — for fresh visitors AND returning ones with older data.
-      // Any entries the visitor added themselves (their own ids) are preserved.
-      function mergeSeeds(stored, baseline) {
+      // pins.js is the single source of truth. On every load we take the curated
+      // set fresh from it (so edits, moves, re-stars and removals ALWAYS propagate,
+      // even for returning visitors with older saved data) and keep only the rows a
+      // visitor added themselves — those carry a Date.now() id (>= 1e12).
+      var USER_ID_MIN = 1000000000000;
+      function reseed(stored, curated) {
         if (!Array.isArray(stored)) stored = [];
-        var have = {};
-        stored.forEach(function (e) { if (e && e.id != null) have[e.id] = true; });
-        var merged = stored.slice();
-        baseline.forEach(function (b) { if (!have[b.id]) merged.push(b); });
-        return merged;
+        var curatedIds = {};
+        curated.forEach(function (e) { if (e && e.id != null) curatedIds[e.id] = true; });
+        var userAdded = stored.filter(function (e) {
+          return e && typeof e.id === "number" && e.id >= USER_ID_MIN && !curatedIds[e.id];
+        });
+        return curated.concat(userAdded);
       }
 
       var storedEntries = null;
       try { storedEntries = JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch (e) {}
-      var entries = mergeSeeds(storedEntries, seed().concat(wishSeed()));
+      var entries = reseed(storedEntries, seed().concat(wishSeed()));
       this.persist(entries);
 
       var storedMeals = null;
       try { storedMeals = JSON.parse(localStorage.getItem(M_KEY) || "null"); } catch (e) {}
-      var meals = mergeSeeds(storedMeals, mSeed().concat(mWishSeed()));
+      var meals = reseed(storedMeals, mSeed().concat(mWishSeed()));
       this.mPersist(meals);
 
       this.entries = entries;
