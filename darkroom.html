@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  // Dev gate: this page is unlisted — bounce to the gate until unlocked.
+  try { if (localStorage.getItem('robert-site-unlocked') !== 'yes') location.replace('gate.html'); } catch (e) {}
+</script>
+<title>The Darkroom — First frames · Robert Eyre</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#14110D">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzE0MTEwRCIvPjxwYXRoIGQ9Ik0xNiA1IEwyNyAxNiBMMTYgMjcgTDUgMTYgWiIgZmlsbD0iI0UwOEEyRiIvPjwvc3ZnPg==">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #14110D; }
+  * { box-sizing: content-box; }
+  ::selection { background: #E08A2F; color: #14110D; }
+  a { color: rgba(242,237,228,0.65); } a:hover { color: #E08A2F; }
+  .page { background: #14110D; color: #F2EDE4; font-family: 'Archivo', sans-serif; min-height: 100vh; }
+
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: 28px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; }
+  .nav a { text-decoration: none; }
+  .nav .right { color: rgba(242,237,228,0.65); letter-spacing: 0.12em; }
+
+  .header { padding: 72px 48px 56px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: end; }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 0.22em; color: #E08A2F; margin-bottom: 24px; }
+  .headline { font-weight: 900; font-stretch: 118%; font-size: clamp(56px, 8vw, 116px); line-height: 0.94; letter-spacing: -0.02em; text-transform: uppercase; }
+  .lede { font-size: 18px; line-height: 1.55; color: rgba(242,237,228,0.75); max-width: 440px; text-wrap: pretty; }
+
+  .plates { padding: 48px; display: flex; flex-direction: column; gap: 20px; border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .plate { border: 1px solid rgba(242,237,228,0.12); display: block; }
+  .plate:hover { border-color: rgba(224,138,47,0.6); }
+  .plate-img { position: relative; }
+  .plate-img img { display: block; width: 100%; height: auto; }
+  .plate-img .ph { display: none; }
+  .plate-img.missing img { display: none; }
+  .plate-img.missing .ph { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center;
+    background: repeating-linear-gradient(45deg, rgba(242,237,228,0.03) 0 12px, rgba(242,237,228,0.05) 12px 24px);
+    color: rgba(242,237,228,0.5); font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.16em; }
+  .plate-img.missing.big .ph { min-height: 460px; }
+  .plate-img.missing.small .ph { min-height: 300px; }
+  .ph .plate-no { color: #E08A2F; font-size: 13px; }
+  .ph .subject { font-size: 13px; }
+  .ph .pending { font-size: 11px; color: rgba(242,237,228,0.35); }
+  .cap { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 18px 22px; border-top: 1px solid rgba(242,237,228,0.12); }
+  .cap.sm { padding: 16px 20px; }
+  .cap-title { font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
+  .cap.sm .cap-title { font-size: 17px; }
+  .cap-label { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; color: rgba(242,237,228,0.5); white-space: nowrap; }
+  .cap.sm .cap-label { font-size: 11px; }
+
+  .footer { display: flex; justify-content: space-between; align-items: baseline; padding: 28px 48px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; color: rgba(242,237,228,0.5); }
+  .footer .links { display: flex; gap: 36px; }
+  .footer a { text-decoration: none; }
+
+  @media (max-width: 760px) {
+    .header { grid-template-columns: 1fr; }
+    .row2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) { .nav, .header, .plates, .footer { padding-left: 24px; padding-right: 24px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="nav">
+    <a href="index.html">← ROBERT EYRE</a>
+    <div class="right">7 PLATES · ONE CAMERA</div>
+  </div>
+
+  <div class="header">
+    <div>
+      <div class="kicker">THE DARKROOM — UNLISTED</div>
+      <div class="headline">First<br>frames.</div>
+    </div>
+    <div class="lede">The opening plates of a Wildlife Photographer of the Year campaign. A beginner's eye, one camera, and whatever holds still long enough. Judge kindly — the Mara is next.</div>
+  </div>
+
+  <div class="plates" id="plates"></div>
+
+  <div class="footer">
+    <div class="links">
+      <a href="index.html">← THE FRONT PAGE</a>
+      <a href="atlas.html">THE ATLAS ◆</a>
+    </div>
+    <div>SHOT FIRST-HAND · © 2026</div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+  // Layout: [01] full, [02|03] pair, [04|05] pair, [06] full, [07] full
+  var plates = [
+    { slug: "giant-tortoises", title: "The argument", label: "PLATE 01 · GIANT TORTOISES", subject: "GIANT TORTOISES", alt: "Two giant tortoises face to face, one mid-bellow", size: "big" },
+    { slug: "turaco", title: "Crested, unbothered", label: "PLATE 02 · RED-CRESTED TURACO", subject: "RED-CRESTED TURACO", alt: "Red-crested turaco among leaves", size: "small" },
+    { slug: "scarlet-ibis", title: "Scarlet, half-hidden", label: "PLATE 03 · SCARLET IBIS", subject: "SCARLET IBIS", alt: "Scarlet ibis behind blades of grass", size: "small" },
+    { slug: "dart-frog", title: "Blue on green", label: "PLATE 04 · POISON DART FROG", subject: "POISON DART FROG", alt: "Blue poison dart frog on moss", size: "small" },
+    { slug: "orange-tip", title: "Marbled wings", label: "PLATE 05 · ORANGE-TIP", subject: "ORANGE-TIP", alt: "Orange-tip butterfly on a conifer sprig", size: "small" },
+    { slug: "malachite", title: "Stained glass, resting", label: "PLATE 06 · MALACHITE", subject: "MALACHITE", alt: "Malachite butterfly on the edge of a leaf", size: "big" },
+    { slug: "full-stretch", title: "Full stretch — the domestic assignment", label: "PLATE 07 · THE OUTTAKE", subject: "THE OUTTAKE", alt: "Dog mid-air catching a red ball", size: "big" }
+  ];
+
+  function plateEl(p) {
+    var fig = document.createElement("a");
+    fig.className = "plate";
+    fig.href = "photos/" + p.slug + ".png";
+    fig.target = "_blank"; fig.rel = "noopener";
+
+    var imgWrap = document.createElement("div");
+    imgWrap.className = "plate-img " + p.size;
+
+    var img = document.createElement("img");
+    img.src = "photos/" + p.slug + ".png";
+    img.alt = p.alt;
+    img.loading = "lazy";
+    img.addEventListener("error", function () { imgWrap.classList.add("missing"); });
+
+    var ph = document.createElement("div");
+    ph.className = "ph";
+    var no = document.createElement("div"); no.className = "plate-no"; no.textContent = p.label.split(" · ")[0];
+    var subj = document.createElement("div"); subj.className = "subject"; subj.textContent = p.subject;
+    var pending = document.createElement("div"); pending.className = "pending"; pending.textContent = "PHOTO PENDING — DROP IN photos/" + p.slug + ".png";
+    ph.appendChild(no); ph.appendChild(subj); ph.appendChild(pending);
+
+    imgWrap.appendChild(img);
+    imgWrap.appendChild(ph);
+
+    var cap = document.createElement("div");
+    cap.className = "cap" + (p.size === "small" ? " sm" : "");
+    var t = document.createElement("div"); t.className = "cap-title"; t.textContent = p.title;
+    var l = document.createElement("div"); l.className = "cap-label"; l.textContent = p.label;
+    cap.appendChild(t); cap.appendChild(l);
+
+    fig.appendChild(imgWrap);
+    fig.appendChild(cap);
+    return fig;
+  }
+
+  var host = document.getElementById("plates");
+  // hero
+  host.appendChild(plateEl(plates[0]));
+  // pair 02/03
+  var r1 = document.createElement("div"); r1.className = "row2";
+  r1.appendChild(plateEl(plates[1])); r1.appendChild(plateEl(plates[2]));
+  host.appendChild(r1);
+  // pair 04/05
+  var r2 = document.createElement("div"); r2.className = "row2";
+  r2.appendChild(plateEl(plates[3])); r2.appendChild(plateEl(plates[4]));
+  host.appendChild(r2);
+  // full 06, 07
+  host.appendChild(plateEl(plates[5]));
+  host.appendChild(plateEl(plates[6]));
+})();
+</script>
+</body>
+</html>

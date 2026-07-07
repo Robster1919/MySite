@@ -28,6 +28,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="pins.js"></script>
 <style>
   html, body { margin: 0; padding: 0; background: #14110D; }
   * { box-sizing: content-box; }
@@ -103,6 +106,20 @@
   .field-card-title { font-weight: 700; font-size: 18px; letter-spacing: -0.01em; }
   .field-card-loc { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.1em; color: rgba(242,237,228,0.5); white-space: nowrap; }
 
+  /* field-notes showcase: light globe + photo column */
+  .field-showcase { display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; align-items: stretch; }
+  .field-globe { position: relative; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(242,237,228,0.12); text-decoration: none; color: inherit; overflow: hidden; min-height: 560px; }
+  .field-globe:hover { border-color: rgba(224,138,47,0.6); }
+  .field-globe canvas { display: block; width: 100%; max-width: 620px; touch-action: none; }
+  .globe-count { position: absolute; top: 16px; left: 20px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: rgba(242,237,228,0.45); }
+  .globe-open { position: absolute; bottom: 16px; left: 20px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #E08A2F; }
+  .globe-tip { position: absolute; pointer-events: none; background: #14110D; border: 1px solid rgba(224,138,47,0.7); padding: 12px 16px; z-index: 5; max-width: 220px; }
+  .globe-tip .gt-loc { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: #E08A2F; margin-bottom: 5px; }
+  .globe-tip .gt-name { font-weight: 900; font-stretch: 112%; font-size: 16px; line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; }
+  .field-photos { display: grid; grid-template-rows: repeat(3, 1fr); gap: 20px; min-height: 560px; }
+  .field-photos .field-card { min-height: 0; }
+  .field-photos .field-card .slot { flex: 1; height: auto; min-height: 0; }
+
   /* next up */
   .next { padding: 88px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); background: #1B1712; }
   .next-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
@@ -110,6 +127,8 @@
   .next-when { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #E08A2F; }
   .next-title { font-weight: 900; font-stretch: 112%; font-size: 30px; line-height: 1.08; text-transform: uppercase; letter-spacing: -0.01em; text-wrap: balance; }
   .next-detail { font-size: 16px; line-height: 1.55; color: rgba(242,237,228,0.65); text-wrap: pretty; }
+  .next-link { margin-top: auto; align-self: flex-start; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #E08A2F; text-decoration: none; border-bottom: 1px solid rgba(224,138,47,0.5); padding-bottom: 3px; }
+  .next-link:hover { border-color: #E08A2F; }
 
   /* contact */
   .contact { padding: 112px 48px 96px 48px; }
@@ -129,6 +148,10 @@
     .work-grid { grid-template-columns: 1fr; gap: 40px; }
     .field-grid, .next-grid { grid-template-columns: 1fr; }
     .field-head { flex-direction: column; align-items: flex-start; }
+    .field-showcase { grid-template-columns: 1fr; }
+    .field-globe { min-height: 420px; }
+    .field-photos { min-height: 0; grid-template-rows: none; }
+    .field-photos .field-card .slot { height: 240px; flex: none; }
   }
   @media (max-width: 560px) {
     .nav, .hero, .section, .next, .contact { padding-left: 24px; padding-right: 24px; }
@@ -185,7 +208,7 @@
     <div class="work-grid">
       <div>
         <div class="section-kicker">01 — THE WORK</div>
-        <div class="section-title">Six years,<br>straight up.</div>
+        <div class="section-title">Six years,<br>Data, AI &amp; BI.</div>
         <div class="work-intro-text">SDR to Senior Enterprise AE in five years, across data, analytics and AI infrastructure. Built on disciplined discovery and deal management — and closing across the UK, Benelux and the Nordics.</div>
       </div>
       <div class="roles" id="roles"></div>
@@ -204,7 +227,18 @@
         <a href="atlas.html" class="field-cta">EXPLORE THE ATLAS ◆ THE GLOBE →</a>
       </div>
     </div>
-    <div class="field-grid" id="fieldGrid"></div>
+    <div class="field-showcase">
+      <a class="field-globe" href="atlas.html" aria-label="Open the Atlas">
+        <canvas id="landingGlobe"></canvas>
+        <div class="globe-count" id="globeCount">40 PINS · LIVE FROM THE LEDGER</div>
+        <div class="globe-open">OPEN THE ATLAS →</div>
+        <div class="globe-tip" id="globeTip" style="display:none;">
+          <div class="gt-loc" id="globeTipLoc"></div>
+          <div class="gt-name" id="globeTipName"></div>
+        </div>
+      </a>
+      <div class="field-photos" id="fieldPhotos"></div>
+    </div>
   </div>
 
   <!-- ============ NEXT UP ============ -->
@@ -241,11 +275,12 @@
     "JET SKI — CROATIAN ISLANDS", "LIVED & TAUGHT IN VIETNAM"
   ];
 
+  // cred #3 (index 2) is filled dynamically from the globe pin data below.
   var creds = [
-    { big: "5 yrs", label: "SDR to Senior Enterprise AE" },
-    { big: "Club", label: "Snowflake President's Club, Mexico" },
-    { big: "4", label: "Summits — Fuji, Fuego, Snowdon & LangBiang" },
-    { big: "10+", label: "Michelin-starred tables, incl. two 3-stars" }
+    { big: "6 yrs", label: "Enterprise AE across Data, AI & BI — startup to IPO" },
+    { big: "2× Club", label: "President's Club — Snowflake & Sigma, both Mexico" },
+    { big: "25+", label: "Countries, first-hand" },
+    { big: "5", label: "Summits — Fuji, Fuego, Snowdon, LangBiang & Preikestolen" }
   ];
 
   var roles = [
@@ -258,22 +293,16 @@
 
   var fieldNotes = [
     { title: "Fuego at night", loc: "GUATEMALA", placeholder: "Volcano shot — lava glow",
-      src: "https://images.unsplash.com/photo-1768452523244-11bba3ab7d51?q=80&w=1200&auto=format&fit=crop" },
+      src: "https://images.unsplash.com/photo-1768452523244-11bba3ab7d51?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.38" },
     { title: "Fuji summit", loc: "JAPAN", placeholder: "Summit photo",
-      src: "https://images.unsplash.com/photo-1509023464722-18d996393ca8?q=80&w=1200&auto=format&fit=crop" },
+      src: "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.35" },
     { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "Desert shot",
-      src: "https://images.unsplash.com/photo-1551171129-8ce1ebb911b3?q=80&w=1200&auto=format&fit=crop" },
-    { title: "Wild sea turtles", loc: "AUSTRALIA", placeholder: "Underwater shot",
-      src: "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?q=80&w=1200&auto=format&fit=crop" },
-    { title: "Kjeragbolten", loc: "NORWAY", placeholder: "Cliff shot",
-      src: "https://images.unsplash.com/photo-1703252933215-6b089d36d5bc?q=80&w=1600&auto=format&fit=crop" },
-    { title: "Suki the Shiba", loc: "LONDON", placeholder: "Dog photo (mandatory)",
-      src: "https://images.unsplash.com/photo-1704895644167-4f00edca67b6?q=80&w=1600&auto=format&fit=crop" }
+      src: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0.5" }
   ];
 
   var nextUp = [
     { when: "SEPT 2026 — BOOKED", title: "Masai Mara safari", detail: "The Big Five, camera in hand." },
-    { when: "IN PROGRESS", title: "Wildlife Photographer of the Year", detail: "First entry as a beginner. Aim high." },
+    { when: "IN PROGRESS", title: "Wildlife Photographer of the Year", detail: "First entry as a beginner. Aim high.", link: "darkroom.html", linkLabel: "SEE THE FIRST FRAMES →" },
     { when: "SOMEDAY, DEFINITELY", title: "Rocket launch, live", detail: "SpaceX or NASA — feel the ground shake." }
   ];
 
@@ -315,11 +344,10 @@
     rolesEl.appendChild(row);
   });
 
-  // Field notes
-  var fieldGrid = document.getElementById("fieldGrid");
+  // Field-note photos (beside the globe)
+  var fieldPhotos = document.getElementById("fieldPhotos");
   fieldNotes.forEach(function (f) {
     var card = el("div", "field-card");
-
     var slot = el("div", "slot");
     if (f.src) {
       var img = document.createElement("img");
@@ -328,20 +356,17 @@
       img.loading = "lazy";
       slot.appendChild(img);
     } else {
-      var ring = el("div", "slot-ring");
+      slot.appendChild(el("div", "slot-ring"));
       var empty = el("div", "slot-empty");
       empty.appendChild(el("div", "slot-cap", f.placeholder));
-      slot.appendChild(ring);
       slot.appendChild(empty);
     }
     card.appendChild(slot);
-
     var foot = el("div", "field-card-foot");
     foot.appendChild(el("div", "field-card-title", f.title));
     foot.appendChild(el("div", "field-card-loc", f.loc));
     card.appendChild(foot);
-
-    fieldGrid.appendChild(card);
+    fieldPhotos.appendChild(card);
   });
 
   // Next up
@@ -351,8 +376,185 @@
     card.appendChild(el("div", "next-when", n.when));
     card.appendChild(el("div", "next-title", n.title));
     card.appendChild(el("div", "next-detail", n.detail));
+    if (n.link) {
+      var a = el("a", "next-link", n.linkLabel);
+      a.href = n.link;
+      card.appendChild(a);
+    }
     nextGrid.appendChild(card);
   });
+
+  // ============ LIGHT GLOBE (Field Notes) ============
+  // Pin data: the visitor's own saved Atlas > shared pins.js > a small fallback.
+  function loadPins() {
+    var hasData = !!(window.ATLAS_DATA && window.ATLAS_DATA.entries);
+    if (hasData) {
+      // Start from the curated pins.js set, then add any extra places the
+      // visitor logged themselves — so the full set always shows for everyone.
+      var base = window.ATLAS_DATA.entries;
+      var merged = base.slice();
+      try {
+        var saved = JSON.parse(localStorage.getItem("robert-atlas-entries-v1") || "null");
+        if (Array.isArray(saved) && saved.length) {
+          var have = {};
+          base.forEach(function (e) { if (e.id != null) have[e.id] = true; });
+          saved.forEach(function (e) { if (e.id == null || !have[e.id]) merged.push(e); });
+        }
+      } catch (e) {}
+      return { list: merged.filter(function (e) { return !e.wish && typeof e.lat === "number"; }), real: true };
+    }
+    return { list: [
+      { name: "Home base", loc: "LONDON, UK", lat: 51.4993, lon: -0.1938 },
+      { name: "Fuji summit", loc: "JAPAN", lat: 35.3606, lon: 138.7274 },
+      { name: "Fuego at night", loc: "GUATEMALA", lat: 14.4747, lon: -90.8806 },
+      { name: "Petra & Wadi Rum", loc: "JORDAN", lat: 30.3285, lon: 35.4444 },
+      { name: "Wild sea turtles", loc: "AUSTRALIA", lat: -23.9, lon: 152.08 },
+      { name: "Kjeragbolten", loc: "NORWAY", lat: 59.0336, lon: 6.5931 },
+      { name: "Marina Bay Sands", loc: "SINGAPORE", lat: 1.2834, lon: 103.8607 },
+      { name: "New York", loc: "USA", lat: 40.7484, lon: -73.9857 }
+    ], real: false };
+  }
+
+  var pinData = loadPins();
+  var gPins = pinData.list;
+
+  // Credential #3 — countries + pins, from the same data
+  (function fillCountryCred() {
+    var cred = credsEl.children[2];
+    if (!cred) return;
+    if (pinData.real && gPins.length) {
+      var countries = {};
+      gPins.forEach(function (e) {
+        var c = ((e.loc || "").split(",").pop() || "").trim();
+        if (c) countries[c] = true;
+      });
+      cred.querySelector(".cred-big").textContent = String(Object.keys(countries).length);
+      cred.querySelector(".cred-label").textContent = "Countries · " + gPins.length + " pins on the Atlas";
+    }
+  })();
+
+  var globeCount = document.getElementById("globeCount");
+  if (globeCount) globeCount.textContent = gPins.length + " PINS · LIVE FROM THE LEDGER";
+
+  // Globe rendering (auto-rotating wireframe; hover a pin for a tooltip)
+  var Globe = {
+    rot: [30, -18], land: null, proj: null, size: 0, dpr: 1, hover: null, raf: 0,
+    canvas: document.getElementById("landingGlobe"),
+    tip: document.getElementById("globeTip"),
+    tipLoc: document.getElementById("globeTipLoc"),
+    tipName: document.getElementById("globeTipName"),
+
+    boot: function () {
+      var self = this, t0 = Date.now();
+      (function wait() {
+        if (window.d3 && window.d3.geoOrthographic && window.topojson) { self.loadLand(); return; }
+        if (Date.now() - t0 > 20000) return;
+        setTimeout(wait, 100);
+      })();
+    },
+    loadLand: function () {
+      var self = this;
+      fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json")
+        .then(function (r) { return r.json(); })
+        .then(function (topo) { self.land = window.topojson.feature(topo, topo.objects.land); })
+        .catch(function () { self.land = { type: "FeatureCollection", features: [] }; })
+        .then(function () { self.start(); });
+    },
+    start: function () {
+      var self = this, c = this.canvas;
+      if (!c) return;
+      this.sizeGlobe();
+      window.addEventListener("resize", function () { self.sizeGlobe(); });
+      c.addEventListener("pointermove", function (ev) { self.move(ev); });
+      c.addEventListener("pointerleave", function () {
+        self.hover = null;
+        if (self.tip) self.tip.style.display = "none";
+      });
+      this.raf = requestAnimationFrame(function (t) { self.tick(t); });
+    },
+    sizeGlobe: function () {
+      var c = this.canvas;
+      if (!c || !c.parentElement) return;
+      var s = Math.max(300, Math.min(c.parentElement.clientWidth - 40, 620));
+      this.size = s;
+      this.dpr = window.devicePixelRatio || 1;
+      c.width = s * this.dpr; c.height = s * this.dpr;
+      c.style.width = s + "px"; c.style.height = s + "px";
+    },
+    move: function (ev) {
+      if (!this.proj) return;
+      var c = this.canvas, b = c.getBoundingClientRect();
+      var x = ev.clientX - b.left, y = ev.clientY - b.top;
+      var center = [-this.rot[0], -this.rot[1]];
+      var best = null, bd = 14;
+      for (var i = 0; i < gPins.length; i++) {
+        var e = gPins[i];
+        if (window.d3.geoDistance([e.lon, e.lat], center) > 1.55) continue;
+        var p = this.proj([e.lon, e.lat]);
+        if (!p) continue;
+        var dd = Math.hypot(p[0] - x, p[1] - y);
+        if (dd < bd) { bd = dd; best = e; }
+      }
+      if (best !== this.hover) {
+        this.hover = best;
+        if (best && this.tip) {
+          var pp = this.proj([best.lon, best.lat]);
+          this.tip.style.left = (c.offsetLeft + pp[0] + 18) + "px";
+          this.tip.style.top = (pp[1] - 10) + "px";
+          this.tipLoc.textContent = best.loc || "";
+          this.tipName.textContent = best.name || "";
+          this.tip.style.display = "block";
+        } else if (this.tip) {
+          this.tip.style.display = "none";
+        }
+      }
+    },
+    tick: function (t) {
+      var self = this;
+      if (!this.hover) this.rot[0] += 0.06;
+      this.draw();
+      this.raf = requestAnimationFrame(function (tt) { self.tick(tt); });
+    },
+    draw: function () {
+      var c = this.canvas;
+      if (!c || !this.size || !window.d3) return;
+      var ctx = c.getContext("2d"), s = this.size;
+      ctx.save();
+      ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      ctx.clearRect(0, 0, s, s);
+      var proj = window.d3.geoOrthographic().translate([s / 2, s / 2]).scale(s / 2 - 20).rotate([this.rot[0], this.rot[1]]).clipAngle(90);
+      this.proj = proj;
+      var path = window.d3.geoPath(proj, ctx);
+      ctx.beginPath(); path({ type: "Sphere" });
+      ctx.fillStyle = "#1A1611"; ctx.fill();
+      ctx.strokeStyle = "rgba(242,237,228,0.3)"; ctx.lineWidth = 1; ctx.stroke();
+      ctx.beginPath(); path(window.d3.geoGraticule10());
+      ctx.strokeStyle = "rgba(242,237,228,0.07)"; ctx.lineWidth = 0.6; ctx.stroke();
+      if (this.land) {
+        ctx.beginPath(); path(this.land);
+        ctx.fillStyle = "rgba(242,237,228,0.16)"; ctx.fill();
+        ctx.strokeStyle = "rgba(242,237,228,0.4)"; ctx.lineWidth = 0.7; ctx.stroke();
+      }
+      var center = [-this.rot[0], -this.rot[1]];
+      for (var i = 0; i < gPins.length; i++) {
+        var e = gPins[i];
+        if (window.d3.geoDistance([e.lon, e.lat], center) > 1.55) continue;
+        var p = proj([e.lon, e.lat]);
+        if (!p) continue;
+        var hot = this.hover === e, r = hot ? 7 : 4.5;
+        ctx.beginPath();
+        ctx.moveTo(p[0], p[1] - r); ctx.lineTo(p[0] + r, p[1]); ctx.lineTo(p[0], p[1] + r); ctx.lineTo(p[0] - r, p[1]);
+        ctx.closePath();
+        ctx.fillStyle = "#E08A2F"; ctx.fill();
+        if (hot) {
+          ctx.beginPath(); ctx.arc(p[0], p[1], 13, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(224,138,47,0.7)"; ctx.lineWidth = 1; ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+  };
+  Globe.boot();
 })();
 </script>
 </body>

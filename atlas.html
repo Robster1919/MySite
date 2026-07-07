@@ -295,6 +295,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="pins.js"></script>
 <script>
 (function () {
   "use strict";
@@ -309,6 +310,7 @@
   var SHOW_GRATICULE = true;
 
   function seed() {
+    if (window.ATLAS_DATA && window.ATLAS_DATA.entries) return window.ATLAS_DATA.entries;
     return [
       { id: 1, name: "Home base", loc: "LONDON, UK", when: "ALWAYS", note: "51° north. Where the passport lives between trips.", lat: 51.4993, lon: -0.1938 },
       { id: 2, name: "Lived & taught", loc: "VIETNAM", when: "", note: "A year of teaching, motorbikes and pho for breakfast.", lat: 16.0544, lon: 108.2022 },
@@ -349,11 +351,15 @@
       { id: 37, name: "Prague", loc: "CZECHIA", when: "", note: "Old streets and a castle skyline — a Gothic storybook after a few beers.", lat: 50.0755, lon: 14.4378 },
       { id: 38, name: "Vienna & the Zombie", loc: "AUSTRIA", when: "", note: "Palaces and museums, then a first 'Zombie' — less imperial, more memorable.", lat: 48.2082, lon: 16.3738 },
       { id: 39, name: "Athens & the Islands", loc: "GREECE", when: "", note: "The ancient weight of Athens, then island-hopping to Santorini's postcard sunsets.", lat: 36.3932, lon: 25.4615 },
-      { id: 40, name: "Bucharest & the lakes", loc: "ROMANIA", when: "", note: "Old Town, the 'Lake District', and Mr Castillo's lesson in how good a gyro is.", lat: 44.4268, lon: 26.1025 }
+      { id: 40, name: "Bucharest & the lakes", loc: "ROMANIA", when: "", note: "Old Town, the 'Lake District', and Mr Castillo's lesson in how good a gyro is.", lat: 44.4268, lon: 26.1025 },
+      { id: 41, name: "Snowdon summit", loc: "WALES", when: "", note: "Up through the cloud line to the roof of Wales, and back down before the weather turned.", lat: 53.0685, lon: -4.0763 },
+      { id: 42, name: "LangBiang summit", loc: "DA LAT, VIETNAM", when: "", note: "The climb above Da Lat — the central highlands laid out green and endless.", lat: 12.0464, lon: 108.4419 },
+      { id: 43, name: "Preikestolen", loc: "NORWAY", when: "", note: "The hike to Pulpit Rock — 604m of sheer nothing straight down to Lysefjord.", lat: 58.9864, lon: 6.1904 }
     ];
   }
 
   function wishSeed() {
+    if (window.ATLAS_DATA && window.ATLAS_DATA.wishes) return window.ATLAS_DATA.wishes;
     return [
       { id: 51, name: "Torres del Paine", loc: "PATAGONIA, CHILE", when: "", note: "The W trek, end to end.", lat: -50.9423, lon: -73.4068, wish: true },
       { id: 52, name: "Gorillas in the mist", loc: "RWANDA", when: "", note: "Volcanoes NP — one hour with a habituated troop.", lat: -1.4795, lon: 29.4926, wish: true },
@@ -362,6 +368,7 @@
   }
 
   function mSeed() {
+    if (window.ATLAS_DATA && window.ATLAS_DATA.meals) return window.ATLAS_DATA.meals;
     return [
       { id: 101, name: "CORE by Clare Smyth", area: "NOTTING HILL", cuisine: "MODERN BRITISH", stars: 3, isLondon: true, lat: 51.5137, lon: -0.2010 },
       { id: 102, name: "Dinner by Heston Blumenthal", area: "KNIGHTSBRIDGE", cuisine: "TRADITIONAL BRITISH", stars: 1, isLondon: true, lat: 51.5021, lon: -0.1600 },
@@ -383,6 +390,7 @@
   }
 
   function mWishSeed() {
+    if (window.ATLAS_DATA && window.ATLAS_DATA.mealWishes) return window.ATLAS_DATA.mealWishes;
     return [
       { id: 151, name: "The Ledbury", area: "NOTTING HILL", cuisine: "MODERN BRITISH", stars: 3, isLondon: true, lat: 51.5111, lon: -0.2003, wish: true },
       { id: 152, name: "Ikoyi", area: "THE STRAND", cuisine: "CREATIVE", stars: 2, isLondon: true, lat: 51.5104, lon: -0.1200, wish: true }
