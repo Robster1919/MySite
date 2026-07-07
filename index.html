@@ -294,16 +294,13 @@
     { dates: "2020 — 2021", title: "SDR → Commercial Account Executive", company: "Outreach", tag: "THE START" }
   ];
 
-  // Crop anchored to an extreme of the source: fp-y=1 (bottom) or fp-y=0 (top),
-  // with object-position matched to the same end. Flip a photo by swapping its
-  // fp-y (1<->0) and objPos y% (100%<->0%).
+  // Your own photos — drop them in the photos/ folder (see filenames below).
+  // objPos nudges the crop vertically if a subject sits high/low: "50% 50%" is
+  // centred; lower the 2nd number to show more top, raise it to show more bottom.
   var fieldNotes = [
-    { title: "Fuego at night", loc: "GUATEMALA", placeholder: "Volcano shot — lava glow", objPos: "50% 100%",
-      src: "https://images.unsplash.com/photo-1768452523244-11bba3ab7d51?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=1" },
-    { title: "Fuji summit", loc: "JAPAN", placeholder: "Summit photo", objPos: "50% 0%",
-      src: "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=0" },
-    { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "Desert shot", objPos: "50% 100%",
-      src: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?q=80&w=1400&h=560&auto=format&fit=crop&crop=focalpoint&fp-y=1" }
+    { title: "Fuego at night", loc: "GUATEMALA", placeholder: "PHOTO PENDING — photos/fuego.jpg", objPos: "50% 50%", src: "photos/fuego.jpg" },
+    { title: "Fuji summit", loc: "JAPAN", placeholder: "PHOTO PENDING — photos/fuji.jpg", objPos: "50% 50%", src: "photos/fuji.jpg" },
+    { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "PHOTO PENDING — photos/petra.jpg", objPos: "50% 50%", src: "photos/petra.jpg" }
   ];
 
   var nextUp = [
@@ -355,18 +352,20 @@
   fieldNotes.forEach(function (f) {
     var card = el("div", "field-card");
     var slot = el("div", "slot");
+    // placeholder sits underneath; the photo (if present) covers it, and if the
+    // file is missing the image removes itself so the placeholder shows through
+    slot.appendChild(el("div", "slot-ring"));
+    var empty = el("div", "slot-empty");
+    empty.appendChild(el("div", "slot-cap", f.placeholder));
+    slot.appendChild(empty);
     if (f.src) {
       var img = document.createElement("img");
       img.src = f.src;
       img.alt = f.title;
       img.loading = "lazy";
       if (f.objPos) img.style.objectPosition = f.objPos;
+      img.addEventListener("error", function () { this.remove(); });
       slot.appendChild(img);
-    } else {
-      slot.appendChild(el("div", "slot-ring"));
-      var empty = el("div", "slot-empty");
-      empty.appendChild(el("div", "slot-cap", f.placeholder));
-      slot.appendChild(empty);
     }
     card.appendChild(slot);
     var foot = el("div", "field-card-foot");
