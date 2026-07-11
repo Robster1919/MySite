@@ -27,30 +27,53 @@
 <meta name="twitter:image" content="https://roberteyre.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<script defer src="https://cdn.jsdelivr.net/npm/d3-array@3/dist/d3-array.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/d3-geo@3/dist/d3-geo.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="pins.js"></script>
 <style>
   html, body { margin: 0; padding: 0; background: #14110D; }
-  * { box-sizing: content-box; }
+  * { box-sizing: border-box; }
   ::selection { background: #E08A2F; color: #14110D; }
+  :focus-visible { outline: 2px solid #E08A2F; outline-offset: 3px; }
   @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .ticker-track { animation: none !important; } }
 
   .page { background: #14110D; color: #F2EDE4; font-family: 'Archivo', sans-serif; min-height: 100vh; overflow-x: hidden; }
 
   /* nav */
-  .nav { display: flex; justify-content: space-between; align-items: center; padding: 28px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); flex-wrap: wrap; gap: 16px; }
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: 28px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); gap: 16px; }
   .nav-coords { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; color: rgba(242,237,228,0.65); }
   .nav-links { display: flex; gap: 36px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; }
   .nav-links a { color: rgba(242,237,228,0.65); text-decoration: none; }
   .nav-links a:hover { color: #E08A2F; }
   .nav-links a.accent { color: #E08A2F; }
 
+  /* hamburger + mobile menu */
+  .burger { display: none; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 44px; height: 44px; background: none; border: 1px solid rgba(242,237,228,0.25); cursor: pointer; }
+  .burger:hover { border-color: #E08A2F; }
+  .burger span { display: block; width: 18px; height: 2px; background: #F2EDE4; }
+  .mobilemenu { position: fixed; inset: 0; z-index: 200; background: #14110D; display: none; flex-direction: column; padding: 20px 24px 40px; box-sizing: border-box; }
+  .mobilemenu.open { display: flex; }
+  .mm-top { display: flex; justify-content: space-between; align-items: center; }
+  .mm-coords { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: rgba(242,237,228,0.65); }
+  .mm-close { box-sizing: border-box; width: 44px; height: 44px; background: none; border: 1px solid rgba(242,237,228,0.25); color: #F2EDE4; font-family: 'IBM Plex Mono', monospace; font-size: 18px; cursor: pointer; }
+  .mm-close:hover { border-color: #E08A2F; color: #E08A2F; }
+  .mm-nav { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+  .mm-nav a { font-family: 'Archivo', sans-serif; font-weight: 900; font-stretch: 112%; font-size: clamp(34px, 11vw, 52px); line-height: 1.06; letter-spacing: -0.01em; text-transform: uppercase; color: #F2EDE4; text-decoration: none; }
+  .mm-nav a:hover { color: #E08A2F; }
+  .mm-nav a.accent { color: #E08A2F; }
+  .mm-nav a.accent:hover { color: #EDA050; }
+  .mm-foot { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: rgba(242,237,228,0.4); }
+
   /* hero */
-  .hero { padding: 96px 48px 64px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .hero { padding: 96px 48px 64px; border-bottom: 1px solid rgba(242,237,228,0.12); }
   .hero-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 0.22em; color: #E08A2F; margin-bottom: 28px; }
-  .hero-name { font-weight: 900; font-stretch: 118%; font-size: clamp(72px, 12.5vw, 190px); line-height: 0.92; letter-spacing: -0.02em; text-transform: uppercase; text-wrap: balance; }
+  .hero-name { font-weight: 900; font-stretch: 118%; font-size: clamp(64px, 12.5vw, 190px); line-height: 0.92; letter-spacing: -0.02em; text-transform: uppercase; text-wrap: balance; }
   .hero-lower { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; margin-top: 56px; align-items: end; }
   .hero-lede { font-size: 26px; line-height: 1.45; font-weight: 400; color: rgba(242,237,228,0.85); max-width: 640px; text-wrap: pretty; }
   .hero-portrait-wrap { display: flex; justify-content: flex-end; }
@@ -84,31 +107,36 @@
   /* work */
   .work-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 64px; }
   .work-intro-text { margin-top: 28px; font-size: 17px; line-height: 1.6; color: rgba(242,237,228,0.7); max-width: 380px; text-wrap: pretty; }
+  .work-hint { margin-top: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: rgba(242,237,228,0.4); }
   .roles { display: flex; flex-direction: column; }
-  .role { display: grid; grid-template-columns: 150px 1fr auto; gap: 24px; align-items: baseline; padding: 26px 0; border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .role-item { border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .role { box-sizing: border-box; display: grid; grid-template-columns: 132px minmax(0, 1fr) auto 20px; column-gap: 24px; align-items: center; padding: 24px 0; cursor: pointer; }
   .role:hover { background: rgba(242,237,228,0.03); }
   .role-dates { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: rgba(242,237,228,0.5); letter-spacing: 0.08em; }
-  .role-title { font-weight: 700; font-size: 22px; letter-spacing: -0.01em; }
+  .role-main { min-width: 0; }
+  .role-title { font-weight: 700; font-size: 22px; letter-spacing: -0.01em; text-wrap: pretty; }
   .role-company { font-size: 16px; color: rgba(242,237,228,0.6); margin-top: 4px; }
-  .role-tag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #E08A2F; }
+  .role-tag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #E08A2F; text-align: right; white-space: nowrap; }
+  .role-sign { font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: rgba(242,237,228,0.4); line-height: 1; text-align: right; }
+  .role-detail { box-sizing: border-box; padding: 2px 0 30px 156px; display: flex; flex-direction: column; gap: 18px; }
+  .role-detail[hidden] { display: none; }
+  .role-context { font-size: 16px; line-height: 1.6; color: rgba(242,237,228,0.72); max-width: 620px; text-wrap: pretty; }
+  .role-points { display: flex; flex-wrap: wrap; gap: 10px; }
+  .role-point { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: #E08A2F; border: 1px solid rgba(224,138,47,0.4); padding: 8px 13px; white-space: nowrap; }
 
   /* field notes */
   .field-head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 48px; gap: 48px; }
   .field-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; max-width: 420px; }
   .field-intro-text { font-size: 17px; line-height: 1.6; color: rgba(242,237,228,0.7); text-wrap: pretty; }
+  .field-ctas { display: flex; flex-direction: column; gap: 12px; }
   .field-cta { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; color: #E08A2F; text-decoration: none; border: 1px solid rgba(224,138,47,0.5); padding: 14px 28px; }
   .field-cta:hover { background: rgba(224,138,47,0.1); }
-  .field-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-  .field-card { border: 1px solid rgba(242,237,228,0.12); display: flex; flex-direction: column; overflow: hidden; }
-  .field-card:hover { border-color: rgba(224,138,47,0.6); }
-  .field-card .slot { width: 100%; height: 320px; flex: none; }
-  .field-card-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 18px 20px; border-top: 1px solid rgba(242,237,228,0.12); }
-  .field-card-title { font-weight: 700; font-size: 18px; letter-spacing: -0.01em; }
-  .field-card-loc { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.1em; color: rgba(242,237,228,0.5); white-space: nowrap; }
+  .field-cta.secondary { color: rgba(242,237,228,0.7); border-color: rgba(242,237,228,0.25); }
+  .field-cta.secondary:hover { border-color: #E08A2F; color: #E08A2F; background: none; }
 
   /* field-notes showcase: light globe + photo column */
   .field-showcase { display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; align-items: stretch; }
-  .field-globe { position: relative; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(242,237,228,0.12); text-decoration: none; color: inherit; overflow: hidden; min-height: 560px; }
+  .field-globe { position: relative; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(242,237,228,0.12); text-decoration: none; color: inherit; overflow: hidden; padding: 40px 28px; min-height: 560px; }
   .field-globe:hover { border-color: rgba(224,138,47,0.6); }
   .field-globe canvas { display: block; width: 100%; max-width: 620px; touch-action: none; }
   .globe-count { position: absolute; top: 16px; left: 20px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: rgba(242,237,228,0.45); }
@@ -117,11 +145,14 @@
   .globe-tip .gt-loc { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: #E08A2F; margin-bottom: 5px; }
   .globe-tip .gt-name { font-weight: 900; font-stretch: 112%; font-size: 16px; line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; }
   .field-photos { display: grid; grid-template-rows: repeat(3, 1fr); gap: 20px; min-height: 560px; }
-  .field-photos .field-card { min-height: 0; overflow: hidden; }
-  /* image pinned out of flow and cover-cropped; focal-point framing comes from the
-     Unsplash fp-y crop, with object-position as a light nudge */
+  .field-card { border: 1px solid rgba(242,237,228,0.12); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+  .field-card:hover { border-color: rgba(224,138,47,0.6); }
+  /* image pinned out of flow and cover-cropped; framing nudged with object-position */
   .field-photos .field-card .slot { flex: 1 1 0; min-height: 0; height: auto; }
-  .field-photos .field-card .slot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .field-photos .field-card .slot img { position: absolute; inset: 0; }
+  .field-card-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 18px; border-top: 1px solid rgba(242,237,228,0.12); flex: none; }
+  .field-card-title { font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+  .field-card-loc { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: rgba(242,237,228,0.5); white-space: nowrap; }
 
   /* next up */
   .next { padding: 88px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); background: #1B1712; }
@@ -134,31 +165,46 @@
   .next-link:hover { border-color: #E08A2F; }
 
   /* contact */
-  .contact { padding: 112px 48px 96px 48px; }
+  .contact { padding: 112px 48px 96px; }
   .contact-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.22em; color: #E08A2F; margin-bottom: 24px; }
-  .contact-big { display: block; font-weight: 900; font-stretch: 118%; font-size: clamp(48px, 8vw, 120px); line-height: 0.95; text-transform: uppercase; letter-spacing: -0.02em; color: #F2EDE4; text-decoration: none; }
+  .contact-big { display: block; font-weight: 900; font-stretch: 118%; font-size: clamp(44px, 8vw, 120px); line-height: 0.95; text-transform: uppercase; letter-spacing: -0.02em; color: #F2EDE4; text-decoration: none; }
   .contact-big:hover { color: #E08A2F; }
-  .contact-foot { display: flex; justify-content: space-between; align-items: baseline; margin-top: 64px; padding-top: 28px; border-top: 1px solid rgba(242,237,228,0.12); font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; color: rgba(242,237,228,0.5); flex-wrap: wrap; gap: 16px; }
-  .contact-socials { display: flex; gap: 36px; }
+  .contact-foot { display: flex; justify-content: space-between; align-items: baseline; margin-top: 64px; padding-top: 28px; border-top: 1px solid rgba(242,237,228,0.12); font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; color: rgba(242,237,228,0.5); gap: 16px; }
+  .contact-socials { display: flex; gap: 36px; flex-wrap: wrap; }
   .contact-socials a { color: rgba(242,237,228,0.65); text-decoration: none; }
   .contact-socials a:hover { color: #E08A2F; }
-
   /* responsive */
-  @media (max-width: 900px) {
-    .hero-lower { grid-template-columns: 1fr; }
+  @media (max-width: 860px) {
+    .nav { padding: 18px 24px; }
+    .nav-links { display: none; }
+    .burger { display: flex; }
+    .hero { padding: 52px 24px 40px; }
+    .hero-lower { grid-template-columns: 1fr; gap: 30px; align-items: start; margin-top: 40px; }
     .hero-portrait-wrap { justify-content: flex-start; }
     .creds { grid-template-columns: repeat(2, 1fr); }
-    .work-grid { grid-template-columns: 1fr; gap: 40px; }
-    .field-grid, .next-grid { grid-template-columns: 1fr; }
-    .field-head { flex-direction: column; align-items: flex-start; }
+    .cred { padding: 26px 24px; }
+    .cred.cred-3 { border-right: none; }
+    .section { padding-left: 24px; padding-right: 24px; }
+    .work-grid { grid-template-columns: 1fr; gap: 34px; }
+    .field-head { flex-direction: column; align-items: flex-start; gap: 28px; }
     .field-showcase { grid-template-columns: 1fr; }
-    .field-globe { min-height: 420px; }
-    .field-photos { min-height: 0; grid-template-rows: none; }
+    .field-globe { min-height: 400px; padding: 32px 20px; }
+    .field-photos { min-height: 0; grid-template-rows: none; grid-auto-rows: minmax(180px, auto); }
     .field-photos .field-card .slot { height: 240px; flex: none; }
+    .next { padding-left: 24px; padding-right: 24px; }
+    .next-grid { grid-template-columns: 1fr; }
+    .contact { padding: 64px 24px 56px; }
+    .contact-foot { flex-direction: column; align-items: flex-start; gap: 16px; }
   }
-  @media (max-width: 560px) {
-    .nav, .hero, .section, .next, .contact { padding-left: 24px; padding-right: 24px; }
-    .role { grid-template-columns: 1fr; gap: 6px; }
+  @media (max-width: 480px) {
+    .creds { grid-template-columns: 1fr; }
+    .cred { border-right: none; }
+    .role { grid-template-columns: 1fr auto; row-gap: 12px; }
+    .role-dates { grid-column: 1; grid-row: 1; }
+    .role-sign { grid-column: 2; grid-row: 1; }
+    .role-main { grid-column: 1 / -1; grid-row: 2; }
+    .role-tag { grid-column: 1 / -1; grid-row: 3; text-align: left; }
+    .role-detail { padding-left: 0; }
   }
 </style>
 </head>
@@ -175,6 +221,25 @@
       <a href="#next">NEXT</a>
       <a href="#hello" class="accent">SAY HELLO</a>
     </div>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- ============ MOBILE MENU ============ -->
+  <div class="mobilemenu" id="mobilemenu">
+    <div class="mm-top">
+      <div class="mm-coords">51.4993° N, 0.1938° W — LONDON</div>
+      <button class="mm-close" id="mmClose" aria-label="Close menu">✕</button>
+    </div>
+    <nav class="mm-nav">
+      <a href="#work" data-close>Work</a>
+      <a href="#field" data-close>Field notes</a>
+      <a href="atlas.html">Atlas</a>
+      <a href="#next" data-close>Next</a>
+      <a href="#hello" class="accent" data-close>Say hello →</a>
+    </nav>
+    <div class="mm-foot">ROBERT EYRE · LONDON · © 2026</div>
   </div>
 
   <!-- ============ HERO ============ -->
@@ -192,7 +257,7 @@
             </svg>
             <div class="slot-cap">Portrait</div>
           </div>
-          <img src="portrait.jpg" alt="Robert Eyre" onerror="this.remove()" style="position:relative; z-index:1; width:100%; height:100%; object-fit:cover; object-position:center;">
+          <img src="portrait.webp" alt="Robert Eyre" onerror="this.remove()" style="position:relative; z-index:1;">
         </div>
       </div>
     </div>
@@ -213,6 +278,7 @@
         <div class="section-kicker">01 — THE WORK</div>
         <div class="section-title">Six years,<br>Data, AI &amp; BI.</div>
         <div class="work-intro-text">SDR to Senior Enterprise AE in five years, across data, analytics and AI infrastructure. Built on disciplined discovery and deal management — and closing across the UK, Benelux and the Nordics.</div>
+        <div class="work-hint">TAP A ROLE FOR THE NUMBERS ↓</div>
       </div>
       <div class="roles" id="roles"></div>
     </div>
@@ -227,7 +293,10 @@
       </div>
       <div class="field-intro">
         <div class="field-intro-text">A running record of getting out there — summits, dives, deserts and the occasional poker table. Now picking up a camera: first Wildlife Photographer of the Year entry in progress.</div>
-        <a href="atlas.html" class="field-cta">EXPLORE THE ATLAS ◆ THE GLOBE →</a>
+        <div class="field-ctas">
+          <a href="atlas.html" class="field-cta">EXPLORE THE ATLAS ◆ THE GLOBE →</a>
+          <a href="darkroom.html" class="field-cta secondary">THE DARKROOM ◆ FIRST FRAMES →</a>
+        </div>
       </div>
     </div>
     <div class="field-showcase">
@@ -253,7 +322,7 @@
   <!-- ============ CONTACT ============ -->
   <div id="hello" class="contact">
     <div class="contact-kicker">SAY HELLO</div>
-    <a href="mailto:robert.c.nicholls@gmail.com" class="contact-big">Let's find<br>common ground →</a>
+    <a href="https://www.linkedin.com/in/robert-eyre-6664481a7/" target="_blank" rel="noopener" class="contact-big">Let's find<br>common ground →</a>
     <div class="contact-foot">
       <div class="contact-socials">
         <a href="https://www.linkedin.com/in/robert-eyre-6664481a7/" target="_blank" rel="noopener">LINKEDIN</a>
@@ -269,38 +338,48 @@
 (function () {
   "use strict";
 
-  var tickerItems = [
+  // Base list is written once; the track is filled by repeating it so the
+  // 50%-translate loop always has enough width, whatever the list length.
+  var tickerBase = [
     "SUMMITED MT. FUJI", "PRESIDENT'S CLUB — SNOWFLAKE", "SUMMITED FUEGO, GUATEMALA",
-    "CAESARS PALACE POKER CHAMPION", "PETRA & WADI RUM", "SCUBA — SHARM EL SHEIKH",
-    "JET SKI — CROATIAN ISLANDS", "LIVED & TAUGHT IN VIETNAM",
-    "SUMMITED MT. FUJI", "PRESIDENT'S CLUB — SNOWFLAKE", "SUMMITED FUEGO, GUATEMALA",
-    "CAESARS PALACE POKER CHAMPION", "PETRA & WADI RUM", "SCUBA — SHARM EL SHEIKH",
-    "JET SKI — CROATIAN ISLANDS", "LIVED & TAUGHT IN VIETNAM"
+    "PRESIDENT'S CLUB — SIGMA", "LIVED & TAUGHT IN VIETNAM"
   ];
+  var tickerItems = tickerBase.concat(tickerBase, tickerBase, tickerBase);
 
   // cred #3 (index 2) is filled dynamically from the globe pin data below.
   var creds = [
-    { big: "6 yrs", label: "Enterprise AE across Data, AI & BI — startup to IPO" },
-    { big: "2× Club", label: "President's Club — Snowflake & Sigma, both Mexico" },
-    { big: "25+", label: "Countries, first-hand" },
-    { big: "5", label: "Summits — Fuji, Fuego, Snowdon, LangBiang & Preikestolen" }
+    { big: "6 yrs", label: "Enterprise AE across Data, AI & BI — startup to IPO", cls: "" },
+    { big: "2× Club", label: "President's Club — Snowflake FY23 & Sigma FY25", cls: "" },
+    { big: "25+", label: "Countries, first-hand", cls: "cred-3" },
+    { big: "5", label: "Summits — Fuji, Fuego, Snowdon, LangBiang & Preikestolen", cls: "" }
   ];
 
+  // Expandable career ledger — tap a role for the numbers.
   var roles = [
-    { dates: "2026 — NOW", title: "Enterprise Account Executive, Geo", company: "Cursor", tag: "AI CODING" },
-    { dates: "2025 — 2026", title: "Senior Enterprise Account Executive", company: "Weights & Biases (CoreWeave)", tag: "AI INFRA" },
-    { dates: "2023 — 2025", title: "Account Executive", company: "Sigma Computing", tag: "ANALYTICS" },
-    { dates: "2021 — 2023", title: "Corporate → Enterprise AE", company: "Snowflake", tag: "DATA CLOUD" },
-    { dates: "2020 — 2021", title: "SDR → Commercial Account Executive", company: "Outreach", tag: "THE START" }
+    { dates: "2026 — NOW", title: "Enterprise Account Executive, Geo", company: "Cursor", tag: "AI CODING",
+      context: "Incoming August 2026 — building the enterprise motion for the AI-native code editor across a Geo territory.",
+      points: ["INCOMING · AUG 2026", "ENTERPRISE · GEO"] },
+    { dates: "2025 — 2026", title: "Senior Enterprise Account Executive", company: "Weights & Biases (CoreWeave)", tag: "AI INFRA",
+      context: "CTOs, Heads of ML and AI on model development, training and agentic deployment — from fast-growing scale-ups and F1 teams to Big-4 consultancies. Acquired by CoreWeave in 2025.",
+      points: ["109% OF QUOTA", "LED EMEA DISCOVERY TRAININGS", "ACQUIRED BY COREWEAVE '25"] },
+    { dates: "2023 — 2025", title: "EMEA Founding Account Executive", company: "Sigma Computing", tag: "ANALYTICS",
+      context: "First AE on the ground for Sigma's EMEA launch and office opening. Built the Snowflake partnership into 20+ direct introductions at must-win logos.",
+      points: ["162% OF QUOTA", "PRESIDENT'S CLUB · FY25", "FOUNDING EMEA HIRE"] },
+    { dates: "2021 — 2023", title: "Corporate → Enterprise Account Executive", company: "Snowflake", tag: "DATA CLOUD",
+      context: "Aligned CDOs, CTOs and CPOs on data products and AI applications across some of the UK's fastest-growing enterprises. Net-new and consumption quota; MEDDPICC and Command of the Message.",
+      points: ["134% OF QUOTA · FY23", "PRESIDENT'S CLUB · FY23", "+32% CONSUMPTION / 3Q"] },
+    { dates: "2020 — 2021", title: "SDR → Commercial Account Executive", company: "Outreach", tag: "THE START",
+      context: "Where it started — Sandler-trained, first into the pipeline, then carrying a Commercial quota. New-hire mentor to the team.",
+      points: ["130% OF QUOTA", "12/12 MONTHS AT QUOTA", "#1 PIPELINE ORG-WIDE · Q4"] }
   ];
 
   // Your own photos — drop them in the photos/ folder (see filenames below).
   // objPos nudges the crop vertically if a subject sits high/low: "50% 50%" is
   // centred; lower the 2nd number to show more top, raise it to show more bottom.
   var fieldNotes = [
-    { title: "Fuego at night", loc: "GUATEMALA", placeholder: "PHOTO PENDING — photos/fuego.jpg", objPos: "50% 50%", src: "photos/fuego.jpg" },
-    { title: "Fuji summit", loc: "JAPAN", placeholder: "PHOTO PENDING — photos/fuji.jpg", objPos: "50% 50%", src: "photos/fuji.jpg" },
-    { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "PHOTO PENDING — photos/petra.jpg", objPos: "50% 50%", src: "photos/petra.jpg" }
+    { title: "Fuego at night", loc: "GUATEMALA", placeholder: "PHOTO PENDING — photos/fuego.webp", objPos: "50% 50%", src: "photos/fuego.webp" },
+    { title: "Fuji summit", loc: "JAPAN", placeholder: "PHOTO PENDING — photos/fuji.webp", objPos: "50% 50%", src: "photos/fuji.webp" },
+    { title: "Petra & Wadi Rum", loc: "JORDAN", placeholder: "PHOTO PENDING — photos/petra.webp", objPos: "50% 50%", src: "photos/petra.webp" }
   ];
 
   var nextUp = [
@@ -316,7 +395,19 @@
     return e;
   }
 
-  // Ticker
+  // ---- Mobile menu ----
+  var menu = document.getElementById("mobilemenu");
+  var burger = document.getElementById("burger");
+  function openMenu() { menu.classList.add("open"); burger.setAttribute("aria-expanded", "true"); document.body.style.overflow = "hidden"; }
+  function closeMenu() { menu.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); document.body.style.overflow = ""; }
+  burger.addEventListener("click", openMenu);
+  document.getElementById("mmClose").addEventListener("click", closeMenu);
+  Array.prototype.forEach.call(menu.querySelectorAll("[data-close]"), function (a) {
+    a.addEventListener("click", closeMenu);
+  });
+  window.addEventListener("keydown", function (ev) { if (ev.key === "Escape") closeMenu(); });
+
+  // ---- Ticker ----
   var track = document.getElementById("tickerTrack");
   tickerItems.forEach(function (t) {
     var item = el("span", "ticker-item");
@@ -325,29 +416,58 @@
     track.appendChild(item);
   });
 
-  // Credentials
+  // ---- Credentials ----
   var credsEl = document.getElementById("creds");
   creds.forEach(function (c) {
-    var cell = el("div", "cred");
+    var cell = el("div", "cred" + (c.cls ? " " + c.cls : ""));
     cell.appendChild(el("div", "cred-big", c.big));
     cell.appendChild(el("div", "cred-label", c.label));
     credsEl.appendChild(cell);
   });
 
-  // Roles
+  // ---- Roles (expandable) ----
   var rolesEl = document.getElementById("roles");
   roles.forEach(function (r) {
-    var row = el("div", "role");
-    row.appendChild(el("div", "role-dates", r.dates));
-    var mid = el("div");
-    mid.appendChild(el("div", "role-title", r.title));
-    mid.appendChild(el("div", "role-company", r.company));
-    row.appendChild(mid);
-    row.appendChild(el("div", "role-tag", r.tag));
-    rolesEl.appendChild(row);
+    var item = el("div", "role-item");
+
+    var head = el("div", "role");
+    head.setAttribute("role", "button");
+    head.setAttribute("tabindex", "0");
+    head.setAttribute("aria-expanded", "false");
+
+    head.appendChild(el("div", "role-dates", r.dates));
+    var main = el("div", "role-main");
+    main.appendChild(el("div", "role-title", r.title));
+    main.appendChild(el("div", "role-company", r.company));
+    head.appendChild(main);
+    head.appendChild(el("div", "role-tag", r.tag));
+    var sign = el("div", "role-sign", "+");
+    head.appendChild(sign);
+
+    var detail = el("div", "role-detail");
+    detail.hidden = true;
+    detail.appendChild(el("div", "role-context", r.context));
+    var pts = el("div", "role-points");
+    (r.points || []).forEach(function (p) { pts.appendChild(el("span", "role-point", p)); });
+    detail.appendChild(pts);
+
+    function toggle() {
+      var open = detail.hidden;
+      detail.hidden = !open;
+      sign.textContent = open ? "−" : "+";
+      head.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    head.addEventListener("click", toggle);
+    head.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); toggle(); }
+    });
+
+    item.appendChild(head);
+    item.appendChild(detail);
+    rolesEl.appendChild(item);
   });
 
-  // Field-note photos (beside the globe)
+  // ---- Field-note photos (beside the globe) ----
   var fieldPhotos = document.getElementById("fieldPhotos");
   fieldNotes.forEach(function (f) {
     var card = el("div", "field-card");
@@ -375,7 +495,7 @@
     fieldPhotos.appendChild(card);
   });
 
-  // Next up
+  // ---- Next up ----
   var nextGrid = document.getElementById("nextGrid");
   nextUp.forEach(function (n) {
     var card = el("div", "next-card");
@@ -433,7 +553,7 @@
     if (pinData.real && gPins.length) {
       var countries = {};
       gPins.forEach(function (e) {
-        var c = ((e.loc || "").split(",").pop() || "").trim();
+        var c = (e.country || ((e.loc || "").split(",").pop() || "")).trim();
         if (c) countries[c] = true;
       });
       cred.querySelector(".cred-big").textContent = String(Object.keys(countries).length);
@@ -443,6 +563,9 @@
 
   var globeCount = document.getElementById("globeCount");
   if (globeCount) globeCount.textContent = gPins.length + " PINS · LIVE FROM THE LEDGER";
+
+  var REDUCE_MOTION = false;
+  try { REDUCE_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
 
   // Globe rendering (auto-rotating wireframe; hover a pin for a tooltip)
   var Globe = {
@@ -478,12 +601,29 @@
         self.hover = null;
         if (self.tip) self.tip.style.display = "none";
       });
+      // only spin while the globe is on screen — the loop otherwise burns
+      // CPU/battery for a canvas nobody can see
+      this.visible = true;
+      if (window.IntersectionObserver) {
+        this.visible = false;
+        new IntersectionObserver(function (ents) {
+          var vis = ents[0].isIntersecting;
+          if (vis && !self.visible) {
+            self.visible = true;
+            self.raf = requestAnimationFrame(function (t) { self.tick(t); });
+          } else if (!vis) {
+            self.visible = false;
+            cancelAnimationFrame(self.raf);
+          }
+        }, { rootMargin: "80px" }).observe(c);
+        return;
+      }
       this.raf = requestAnimationFrame(function (t) { self.tick(t); });
     },
     sizeGlobe: function () {
       var c = this.canvas;
       if (!c || !c.parentElement) return;
-      var s = Math.max(300, Math.min(c.parentElement.clientWidth - 40, 620));
+      var s = Math.max(300, Math.min(c.parentElement.clientWidth - 60, 520));
       this.size = s;
       this.dpr = window.devicePixelRatio || 1;
       c.width = s * this.dpr; c.height = s * this.dpr;
@@ -508,7 +648,7 @@
         if (best && this.tip) {
           var pp = this.proj([best.lon, best.lat]);
           this.tip.style.left = (c.offsetLeft + pp[0] + 18) + "px";
-          this.tip.style.top = (pp[1] - 10) + "px";
+          this.tip.style.top = (c.offsetTop + pp[1] - 10) + "px";
           this.tipLoc.textContent = best.loc || "";
           this.tipName.textContent = best.name || "";
           this.tip.style.display = "block";
@@ -519,7 +659,8 @@
     },
     tick: function (t) {
       var self = this;
-      if (!this.hover) this.rot[0] += 0.06;
+      if (this.visible === false) return;
+      if (!this.hover && !REDUCE_MOTION) this.rot[0] += 0.06;
       this.draw();
       this.raf = requestAnimationFrame(function (tt) { self.tick(tt); });
     },

@@ -13,38 +13,49 @@
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzE0MTEwRCIvPjxwYXRoIGQ9Ik0xNiA1IEwyNyAxNiBMMTYgMjcgTDUgMTYgWiIgZmlsbD0iI0UwOEEyRiIvPjwvc3ZnPg==">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <style>
   html, body { margin: 0; padding: 0; background: #14110D; }
-  * { box-sizing: content-box; }
+  * { box-sizing: border-box; }
   ::selection { background: #E08A2F; color: #14110D; }
   a { color: rgba(242,237,228,0.65); } a:hover { color: #E08A2F; }
+  :focus-visible { outline: 2px solid #E08A2F; outline-offset: 3px; }
   .page { background: #14110D; color: #F2EDE4; font-family: 'Archivo', sans-serif; min-height: 100vh; }
 
-  .nav { display: flex; justify-content: space-between; align-items: center; padding: 28px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; }
-  .nav a { text-decoration: none; }
-  .nav .right { color: rgba(242,237,228,0.65); letter-spacing: 0.12em; }
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: 28px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .nav a, .nav .right { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; color: rgba(242,237,228,0.65); text-decoration: none; }
+  .nav .right { letter-spacing: 0.12em; }
 
-  .header { padding: 72px 48px 56px 48px; border-bottom: 1px solid rgba(242,237,228,0.12); display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: end; }
+  .header { padding: 72px 48px 56px; border-bottom: 1px solid rgba(242,237,228,0.12); display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: end; }
   .kicker { font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 0.22em; color: #E08A2F; margin-bottom: 24px; }
   .headline { font-weight: 900; font-stretch: 118%; font-size: clamp(56px, 8vw, 116px); line-height: 0.94; letter-spacing: -0.02em; text-transform: uppercase; }
+  .head-right { display: flex; flex-direction: column; gap: 20px; }
   .lede { font-size: 18px; line-height: 1.55; color: rgba(242,237,228,0.75); max-width: 440px; text-wrap: pretty; }
+  .head-hint { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: rgba(242,237,228,0.45); }
 
-  .plates { padding: 48px; display: flex; flex-direction: column; gap: 20px; border-bottom: 1px solid rgba(242,237,228,0.12); }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .plate { border: 1px solid rgba(242,237,228,0.12); display: block; }
+  .plates { padding: 48px; border-bottom: 1px solid rgba(242,237,228,0.12); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .full { grid-column: 1 / -1; }
+
+  .plate { border: 1px solid rgba(242,237,228,0.12); cursor: zoom-in; width: 100%; }
+  .plate:hover { border-color: rgba(224,138,47,0.6); }
   .plate-img { position: relative; }
   .plate-img img { display: block; width: 100%; height: auto; }
+  .plate-badge { position: absolute; top: 12px; right: 12px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #E08A2F; background: rgba(20,17,13,0.7); padding: 5px 9px; }
+  /* graceful placeholder while a photo is missing */
   .plate-img .ph { display: none; }
   .plate-img.missing img { display: none; }
   .plate-img.missing .ph { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center;
     background: repeating-linear-gradient(45deg, rgba(242,237,228,0.03) 0 12px, rgba(242,237,228,0.05) 12px 24px);
     color: rgba(242,237,228,0.5); font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.16em; }
-  .plate-img.missing.big .ph { min-height: 460px; }
-  .plate-img.missing.small .ph { min-height: 300px; }
+  .plate.full .plate-img.missing .ph { min-height: 460px; }
+  .plate .plate-img.missing .ph { min-height: 300px; }
   .ph .plate-no { color: #E08A2F; font-size: 13px; }
   .ph .subject { font-size: 13px; }
   .ph .pending { font-size: 11px; color: rgba(242,237,228,0.35); }
+
   .cap { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 18px 22px; border-top: 1px solid rgba(242,237,228,0.12); }
   .cap.sm { padding: 16px 20px; }
   .cap-title { font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
@@ -56,11 +67,38 @@
   .footer .links { display: flex; gap: 36px; }
   .footer a { text-decoration: none; }
 
+  /* lightbox */
+  .lb { position: fixed; inset: 0; z-index: 100; background: rgba(20,17,13,0.95); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+  .lb[hidden] { display: none; }
+  .lb-top { display: flex; justify-content: space-between; align-items: center; padding: 22px 32px; }
+  .lb-counter { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.16em; color: #E08A2F; }
+  .lb-close { background: none; border: 1px solid rgba(242,237,228,0.25); color: rgba(242,237,228,0.7); font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; padding: 9px 16px; cursor: pointer; }
+  .lb-close:hover { border-color: #E08A2F; color: #E08A2F; }
+  .lb-stage { min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 20px; padding: 0 24px; }
+  .lb-arrow { flex: none; width: 56px; height: 56px; background: none; border: 1px solid rgba(242,237,228,0.25); color: #F2EDE4; font-size: 26px; line-height: 1; cursor: pointer; }
+  .lb-arrow:hover { border-color: #E08A2F; color: #E08A2F; }
+  .lb-img { flex: 1 1 auto; min-width: 0; height: 100%; object-fit: contain; cursor: default; }
+  .lb-cap { padding: 24px 32px 34px; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .lb-title { font-weight: 900; font-stretch: 115%; font-size: clamp(24px, 3.4vw, 40px); line-height: 1; letter-spacing: -0.01em; text-transform: uppercase; text-wrap: balance; }
+  .lb-label { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: #E08A2F; }
+  .lb-alt { font-size: 15px; line-height: 1.5; color: rgba(242,237,228,0.6); max-width: 520px; text-wrap: pretty; }
+
+  @keyframes dkFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes dkRise { from { opacity: 0; transform: translateY(12px) scale(0.99); } to { opacity: 1; transform: none; } }
+  .lb { animation: dkFade 0.22s ease; }
+  .lb-img { animation: dkRise 0.28s cubic-bezier(0.22,0.61,0.36,1); }
+  @media (prefers-reduced-motion: reduce) { .lb, .lb-img { animation: none !important; } }
+
   @media (max-width: 760px) {
-    .header { grid-template-columns: 1fr; }
-    .row2 { grid-template-columns: 1fr; }
+    .nav { padding: 20px 24px; flex-wrap: wrap; gap: 8px 16px; }
+    .header { grid-template-columns: 1fr; padding: 44px 24px 32px; gap: 22px; }
+    .plates { padding: 24px; }
+    .grid { grid-template-columns: 1fr; }
+    .full { grid-column: auto; }
+    .footer { padding: 24px; flex-direction: column; gap: 14px; align-items: flex-start; }
+    .lb-arrow { width: 44px; height: 44px; font-size: 22px; }
+    .lb-stage { padding: 0 8px; }
   }
-  @media (max-width: 560px) { .nav, .header, .plates, .footer { padding-left: 24px; padding-right: 24px; } }
 </style>
 </head>
 <body>
@@ -76,10 +114,15 @@
       <div class="kicker">THE DARKROOM — UNLISTED</div>
       <div class="headline">First<br>frames.</div>
     </div>
-    <div class="lede">The opening plates of a Wildlife Photographer of the Year campaign. A beginner's eye, one camera, and whatever holds still long enough. Judge kindly — the Mara is next.</div>
+    <div class="head-right">
+      <div class="lede">The opening plates of a Wildlife Photographer of the Year campaign. A beginner's eye, one camera, and whatever holds still long enough. Judge kindly — the Mara is next.</div>
+      <div class="head-hint">TAP A PLATE TO ENLARGE ⤢ · ← → TO STEP THROUGH</div>
+    </div>
   </div>
 
-  <div class="plates" id="plates"></div>
+  <div class="plates">
+    <div class="grid" id="grid"></div>
+  </div>
 
   <div class="footer">
     <div class="links">
@@ -91,69 +134,159 @@
 
 </div>
 
+<!-- lightbox -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Plate viewer" hidden>
+  <div class="lb-top">
+    <div class="lb-counter" id="lbCounter"></div>
+    <button type="button" class="lb-close" id="lbClose">CLOSE ✕</button>
+  </div>
+  <div class="lb-stage" id="lbStage">
+    <button type="button" class="lb-arrow" id="lbPrev" aria-label="Previous plate">‹</button>
+    <img class="lb-img" id="lbImg" alt="">
+    <button type="button" class="lb-arrow" id="lbNext" aria-label="Next plate">›</button>
+  </div>
+  <div class="lb-cap">
+    <div class="lb-title" id="lbTitle"></div>
+    <div class="lb-label" id="lbLabel"></div>
+    <div class="lb-alt" id="lbAlt"></div>
+  </div>
+</div>
+
 <script>
 (function () {
   "use strict";
-  // Layout: [01] full, [02|03] pair, [04|05] pair, [06] full, [07] full
-  var plates = [
-    { slug: "giant-tortoises", title: "The argument", label: "PLATE 01 · GIANT TORTOISES", subject: "GIANT TORTOISES", alt: "Two giant tortoises face to face, one mid-bellow", size: "big" },
-    { slug: "turaco", title: "Crested, unbothered", label: "PLATE 02 · RED-CRESTED TURACO", subject: "RED-CRESTED TURACO", alt: "Red-crested turaco among leaves", size: "small" },
-    { slug: "scarlet-ibis", title: "Scarlet, half-hidden", label: "PLATE 03 · SCARLET IBIS", subject: "SCARLET IBIS", alt: "Scarlet ibis behind blades of grass", size: "small" },
-    { slug: "dart-frog", title: "Blue on green", label: "PLATE 04 · POISON DART FROG", subject: "POISON DART FROG", alt: "Blue poison dart frog on moss", size: "small" },
-    { slug: "orange-tip", title: "Marbled wings", label: "PLATE 05 · ORANGE-TIP", subject: "ORANGE-TIP", alt: "Orange-tip butterfly on a conifer sprig", size: "small" },
-    { slug: "malachite", title: "Stained glass, resting", label: "PLATE 06 · MALACHITE", subject: "MALACHITE", alt: "Malachite butterfly on the edge of a leaf", size: "big" },
-    { slug: "full-stretch", title: "Full stretch — the domestic assignment", label: "PLATE 07 · THE OUTTAKE", subject: "THE OUTTAKE", alt: "Dog mid-air catching a red ball", size: "big" }
+
+  // Layout mirrors the design: [01] full, [02|03], [04|05], [06] full, [07] full.
+  var PLATES = [
+    { src: "photos/giant-tortoises.webp", w: 1920, h: 974, title: "The argument", label: "PLATE 01 · GIANT TORTOISES", subject: "GIANT TORTOISES", alt: "Two giant tortoises face to face, one mid-bellow", full: true },
+    { src: "photos/turaco.webp", w: 1920, h: 968, title: "Crested, unbothered", label: "PLATE 02 · RED-CRESTED TURACO", subject: "RED-CRESTED TURACO", alt: "Red-crested turaco among leaves", full: false },
+    { src: "photos/scarlet-ibis.webp", w: 1920, h: 976, title: "Scarlet, half-hidden", label: "PLATE 03 · SCARLET IBIS", subject: "SCARLET IBIS", alt: "Scarlet ibis behind blades of grass", full: false },
+    { src: "photos/dart-frog.webp", w: 1920, h: 978, title: "Blue on green", label: "PLATE 04 · POISON DART FROG", subject: "POISON DART FROG", alt: "Blue poison dart frog on moss", full: false },
+    { src: "photos/orange-tip.webp", w: 1920, h: 977, title: "Marbled wings", label: "PLATE 05 · ORANGE-TIP", subject: "ORANGE-TIP", alt: "Orange-tip butterfly on a conifer sprig", full: false },
+    { src: "photos/malachite.webp", w: 1920, h: 980, title: "Stained glass, resting", label: "PLATE 06 · MALACHITE", subject: "MALACHITE", alt: "Malachite butterfly on the edge of a leaf", full: true },
+    { src: "photos/full-stretch.webp", w: 1920, h: 968, title: "Full stretch — the domestic assignment", label: "PLATE 07 · THE OUTTAKE", subject: "THE OUTTAKE", alt: "Dog mid-air catching a red ball", full: true }
   ];
 
-  function plateEl(p) {
-    var fig = document.createElement("figure");
-    fig.className = "plate";
-    fig.style.margin = "0";
-
-    var imgWrap = document.createElement("div");
-    imgWrap.className = "plate-img " + p.size;
-
-    var img = document.createElement("img");
-    img.src = "photos/" + p.slug + ".png";
-    img.alt = p.alt;
-    img.loading = "lazy";
-    img.addEventListener("error", function () { imgWrap.classList.add("missing"); });
-
-    var ph = document.createElement("div");
-    ph.className = "ph";
-    var no = document.createElement("div"); no.className = "plate-no"; no.textContent = p.label.split(" · ")[0];
-    var subj = document.createElement("div"); subj.className = "subject"; subj.textContent = p.subject;
-    var pending = document.createElement("div"); pending.className = "pending"; pending.textContent = "PHOTO PENDING — DROP IN photos/" + p.slug + ".png";
-    ph.appendChild(no); ph.appendChild(subj); ph.appendChild(pending);
-
-    imgWrap.appendChild(img);
-    imgWrap.appendChild(ph);
-
-    var cap = document.createElement("div");
-    cap.className = "cap" + (p.size === "small" ? " sm" : "");
-    var t = document.createElement("div"); t.className = "cap-title"; t.textContent = p.title;
-    var l = document.createElement("div"); l.className = "cap-label"; l.textContent = p.label;
-    cap.appendChild(t); cap.appendChild(l);
-
-    fig.appendChild(imgWrap);
-    fig.appendChild(cap);
-    return fig;
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
   }
 
-  var host = document.getElementById("plates");
-  // hero
-  host.appendChild(plateEl(plates[0]));
-  // pair 02/03
-  var r1 = document.createElement("div"); r1.className = "row2";
-  r1.appendChild(plateEl(plates[1])); r1.appendChild(plateEl(plates[2]));
-  host.appendChild(r1);
-  // pair 04/05
-  var r2 = document.createElement("div"); r2.className = "row2";
-  r2.appendChild(plateEl(plates[3])); r2.appendChild(plateEl(plates[4]));
-  host.appendChild(r2);
-  // full 06, 07
-  host.appendChild(plateEl(plates[5]));
-  host.appendChild(plateEl(plates[6]));
+  // ---- grid ----
+  var grid = document.getElementById("grid");
+  PLATES.forEach(function (p, i) {
+    var tile = document.createElement("div");
+    tile.className = "plate" + (p.full ? " full" : "");
+    tile.setAttribute("role", "button");
+    tile.setAttribute("tabindex", "0");
+    tile.setAttribute("aria-label", "Enlarge plate " + (i + 1) + " — " + p.title);
+
+    var imgWrap = el("div", "plate-img");
+    var img = document.createElement("img");
+    img.src = p.src;
+    img.alt = p.alt;
+    img.width = p.w;
+    img.height = p.h;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.addEventListener("error", function () { imgWrap.classList.add("missing"); });
+    var badge = el("div", "plate-badge", "⤢");
+
+    var ph = el("div", "ph");
+    ph.appendChild(el("div", "plate-no", p.label.split(" · ")[0]));
+    ph.appendChild(el("div", "subject", p.subject));
+    ph.appendChild(el("div", "pending", "PHOTO PENDING — DROP IN " + p.src));
+
+    imgWrap.appendChild(img);
+    imgWrap.appendChild(badge);
+    imgWrap.appendChild(ph);
+
+    var cap = el("div", "cap" + (p.full ? "" : " sm"));
+    cap.appendChild(el("div", "cap-title", p.title));
+    cap.appendChild(el("div", "cap-label", p.label));
+
+    tile.appendChild(imgWrap);
+    tile.appendChild(cap);
+
+    tile.addEventListener("click", function () { openAt(i); });
+    tile.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openAt(i); }
+    });
+
+    grid.appendChild(tile);
+  });
+
+  // ---- lightbox ----
+  var open = null;
+  var lb = document.getElementById("lb");
+  var lbImg = document.getElementById("lbImg");
+  var lbCounter = document.getElementById("lbCounter");
+  var lbTitle = document.getElementById("lbTitle");
+  var lbLabel = document.getElementById("lbLabel");
+  var lbAlt = document.getElementById("lbAlt");
+  var stage = document.getElementById("lbStage");
+
+  function pad2(n) { return String(n).length < 2 ? "0" + n : String(n); }
+
+  function preload(i) {
+    var p = PLATES[(i + PLATES.length) % PLATES.length];
+    var im = new Image();
+    im.src = p.src;
+  }
+
+  function render() {
+    if (open === null) { lb.hidden = true; return; }
+    var p = PLATES[open];
+    lb.hidden = false;
+    // src set imperatively so nothing 404s before a plate is chosen
+    if (lbImg.getAttribute("src") !== p.src) lbImg.setAttribute("src", p.src);
+    lbImg.alt = p.alt;
+    lbCounter.textContent = "PLATE " + pad2(open + 1) + " / " + pad2(PLATES.length);
+    lbTitle.textContent = p.title;
+    lbLabel.textContent = p.label;
+    lbAlt.textContent = p.alt;
+    // warm the neighbours so arrow-key stepping is instant
+    preload(open + 1);
+    preload(open - 1);
+  }
+
+  var lastFocus = null;
+  function openAt(i) {
+    lastFocus = document.activeElement;
+    open = i;
+    render();
+    document.body.style.overflow = "hidden";
+    document.getElementById("lbClose").focus();
+  }
+  function close() {
+    open = null;
+    render();
+    document.body.style.overflow = "";
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    lastFocus = null;
+  }
+  function step(d) { if (open === null) return; open = (open + d + PLATES.length) % PLATES.length; render(); }
+
+  document.getElementById("lbClose").addEventListener("click", function (ev) { ev.stopPropagation(); close(); });
+  document.getElementById("lbPrev").addEventListener("click", function (ev) { ev.stopPropagation(); step(-1); });
+  document.getElementById("lbNext").addEventListener("click", function (ev) { ev.stopPropagation(); step(1); });
+  // click the backdrop (or empty stage) to close; clicking the image, top bar or
+  // caption does not
+  lb.addEventListener("click", close);
+  lbImg.addEventListener("click", function (ev) { ev.stopPropagation(); });
+  var lbTop = lb.querySelector(".lb-top");
+  var lbCap = lb.querySelector(".lb-cap");
+  if (lbTop) lbTop.addEventListener("click", function (ev) { ev.stopPropagation(); });
+  if (lbCap) lbCap.addEventListener("click", function (ev) { ev.stopPropagation(); });
+
+  window.addEventListener("keydown", function (ev) {
+    if (open === null) return;
+    if (ev.key === "Escape") close();
+    else if (ev.key === "ArrowRight") step(1);
+    else if (ev.key === "ArrowLeft") step(-1);
+  });
 })();
 </script>
 </body>
