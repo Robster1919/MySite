@@ -74,7 +74,7 @@
   .pin-banner { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); white-space: nowrap; border: 1px solid rgba(224,138,47,0.6); background: #14110D; padding: 10px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #E08A2F; display: none; }
   .pin-banner.show { display: block; }
 
-  .tip-card { position: absolute; width: 250px; pointer-events: none; background: #14110D; border: 1px solid rgba(224,138,47,0.7); padding: 18px 20px; z-index: 5; display: none; }
+  .tip-card { position: absolute; width: min(250px, calc(100% - 16px)); max-width: calc(100% - 16px); box-sizing: border-box; pointer-events: none; background: #14110D; border: 1px solid rgba(224,138,47,0.7); padding: 18px 20px; z-index: 5; display: none; }
   .tip-card.show { display: block; }
   .tip-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #E08A2F; margin-bottom: 8px; }
   .tip-name { font-weight: 900; font-stretch: 112%; font-size: 20px; line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; }
@@ -130,6 +130,9 @@
   .row-note { font-size: 14px; line-height: 1.5; color: rgba(242,237,228,0.65); margin-top: 8px; text-wrap: pretty; }
   .row-remove { background: none; border: none; color: rgba(242,237,228,0.25); font-family: 'IBM Plex Mono', monospace; font-size: 15px; cursor: pointer; padding: 2px 6px; }
   .row-remove:hover { color: #E08A2F; }
+  .row-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .row-promote { background: none; border: 1px solid rgba(224,138,47,0.5); color: #E08A2F; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.12em; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
+  .row-promote:hover { background: rgba(224,138,47,0.12); }
 
   .table-row { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; padding: 18px 0; border-bottom: 1px solid rgba(242,237,228,0.12); align-items: baseline; }
   .table-row.clickable { cursor: pointer; }
@@ -144,6 +147,26 @@
   .list-header.away { padding: 36px 0 12px 0; }
 
   .footer { display: flex; justify-content: space-between; align-items: baseline; padding: 28px 48px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; color: rgba(242,237,228,0.5); }
+
+  @media (max-width: 900px) {
+    .nav { padding: 20px 24px; flex-wrap: wrap; gap: 8px 16px; }
+    .nav-count { font-size: 12px; letter-spacing: 0.1em; line-height: 1.45; max-width: 100%; }
+    .header { grid-template-columns: 1fr; padding: 44px 24px 32px; gap: 24px; align-items: start; }
+    .h1 { font-size: clamp(48px, 14vw, 88px); }
+    .h1-sm { font-size: clamp(40px, 12vw, 72px); }
+    .split { grid-template-columns: 1fr; }
+    .map-col { position: static; border-right: none; padding: 28px 24px 36px; border-bottom: 1px solid rgba(242,237,228,0.12); }
+    .canvas-wrap.globe, .canvas-wrap.map { max-width: 100%; }
+    .ledger-col { padding: 32px 24px; }
+    .section-head { grid-template-columns: 1fr; padding: 48px 24px 32px; gap: 24px; align-items: start; }
+    .scroll-col { max-height: none; }
+    .scroll-col.tables-london, .scroll-col.tables-away { max-height: none; }
+    .hint { white-space: normal; line-height: 1.55; padding: 0 4px; }
+    .pin-banner { white-space: normal; text-align: center; left: 12px; right: 12px; transform: none; width: auto; }
+    .tip-card { width: min(250px, calc(100% - 16px)); max-width: calc(100% - 16px); box-sizing: border-box; }
+    .footer { padding: 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
+    .seg-row { flex-wrap: wrap; }
+  }
 </style>
 </head>
 <body>
@@ -183,7 +206,7 @@
           <div class="tip-note" id="gTipNote"></div>
         </div>
       </div>
-      <div class="hint mono">DRAG TO SPIN · HOVER A ◆ FOR THE STORY · CLICK A LEDGER ROW TO FLY THERE</div>
+      <div class="hint mono" id="globeHint">DRAG TO SPIN · TAP A ◆ FOR THE STORY · TAP A LEDGER ROW TO FLY THERE</div>
     </div>
 
     <!-- Ledger -->
@@ -244,7 +267,7 @@
             <div class="tip-stars" id="mTipStars"></div>
           </div>
         </div>
-        <div class="hint mono">CENTRAL LONDON · ONE ◆ PER MICHELIN STAR · HOVER A CLUSTER FOR THE TABLE</div>
+        <div class="hint mono">CENTRAL LONDON · ONE ◆ PER MICHELIN STAR · TAP A CLUSTER FOR THE TABLE</div>
       </div>
 
       <!-- Tables ledger -->
@@ -320,6 +343,10 @@
   var SHOW_GRATICULE = true;
   var REDUCE_MOTION = false;
   try { REDUCE_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  var COARSE = false;
+  try { COARSE = window.matchMedia("(pointer: coarse)").matches; } catch (e) {}
+  var HIT_R = COARSE ? 26 : 14;
+  var MAP_HIT_R = COARSE ? 28 : 16;
 
   // pins.js is the single source of truth; these fallbacks only matter if it
   // fails to load, so they stay small and neutral.
@@ -492,6 +519,8 @@
       c.addEventListener("pointermove", function (ev) { self.onMove(ev); });
       window.addEventListener("pointerup", function (ev) { self.onUp(ev); });
       c.addEventListener("pointerleave", function () {
+        // On touch, leave fires as the finger lifts — keep the tip until the next tap/drag
+        if (COARSE) return;
         if (!self.drag && self.tip) { self.hoverId = null; self.tip = null; self.syncGlobeTip(); }
       });
     },
@@ -499,9 +528,11 @@
     sizeCanvas: function () {
       var c = this.canvas;
       if (!c || !c.parentElement) return;
-      var s = Math.max(320, Math.min(c.parentElement.clientWidth, 720));
+      // Fit the container — never force a floor that overflows a narrow phone column
+      var avail = Math.max(0, c.parentElement.clientWidth);
+      var s = Math.max(220, Math.min(avail, 720));
       this.size = s;
-      this.dpr = window.devicePixelRatio || 1;
+      this.dpr = Math.min(window.devicePixelRatio || 1, 2);
       c.width = s * this.dpr;
       c.height = s * this.dpr;
       c.style.width = s + "px";
@@ -525,13 +556,17 @@
 
     onUp: function (ev) {
       if (!this.drag) return;
-      var wasClick = this.drag.moved < 6;
+      var wasClick = this.drag.moved < 8;
       this.drag = null;
       var c = this.canvas;
       if (c) c.style.cursor = this.adding ? "crosshair" : "grab";
-      if (wasClick && this.adding && this.proj && c) {
-        var b = c.getBoundingClientRect();
-        var x = ev.clientX - b.left, y = ev.clientY - b.top;
+      if (!wasClick || !this.proj || !c) return;
+
+      var b = c.getBoundingClientRect();
+      var x = ev.clientX - b.left, y = ev.clientY - b.top;
+
+      // Add-mode: drop a new pin. Otherwise treat as tap-to-select (mobile + desktop).
+      if (this.adding) {
         if (Math.hypot(x - this.size / 2, y - this.size / 2) > this.size / 2 - 20) return;
         var ll = this.proj.invert([x, y]);
         if (!ll || isNaN(ll[0]) || isNaN(ll[1])) return;
@@ -539,16 +574,18 @@
         this.draft.lon = +ll[0].toFixed(4);
         this.draft.lat = +ll[1].toFixed(4);
         this.syncLedgerForm();
+        return;
       }
+
+      var hit = this.hitTest(x, y);
+      if (hit) this.showTipFor(hit.id);
+      else { this.hoverId = null; this.tip = null; this.syncGlobeTip(); }
     },
 
-    hover: function (ev) {
-      if (!this.proj) return;
-      var c = this.canvas;
-      var b = c.getBoundingClientRect();
-      var x = ev.clientX - b.left, y = ev.clientY - b.top;
+    hitTest: function (x, y) {
+      if (!this.proj) return null;
       var center = [-this.rot[0], -this.rot[1]];
-      var best = null, bd = 14;
+      var best = null, bd = HIT_R;
       for (var i = 0; i < this.entries.length; i++) {
         var e = this.entries[i];
         if (typeof e.lat !== "number") continue;
@@ -559,6 +596,15 @@
         var dd = Math.hypot(p[0] - x, p[1] - y);
         if (dd < bd) { bd = dd; best = e; }
       }
+      return best;
+    },
+
+    hover: function (ev) {
+      if (!this.proj || this.drag) return;
+      var c = this.canvas;
+      var b = c.getBoundingClientRect();
+      var x = ev.clientX - b.left, y = ev.clientY - b.top;
+      var best = this.hitTest(x, y);
       c.style.cursor = this.adding ? "crosshair" : (best ? "pointer" : "grab");
       var bid = best ? best.id : null;
       if (bid !== this.hoverId) {
@@ -573,11 +619,13 @@
       if (!e || !this.proj) return;
       var p = this.proj([e.lon, e.lat]);
       if (!p) return;
-      var left = p[0] + 20, top = p[1] - 16;
-      if (left + 300 > this.size && p[0] - 310 >= 8) left = p[0] - 310;
-      left = Math.max(8, Math.min(left, this.size - 300));
+      var tipW = Math.min(250, Math.max(160, this.size - 16));
+      var tipH = 170;
+      var left = p[0] + 18, top = p[1] - 16;
+      if (left + tipW > this.size && p[0] - tipW - 10 >= 8) left = p[0] - tipW - 10;
+      left = Math.max(8, Math.min(left, this.size - tipW - 8));
       if (top < 8) top = 8;
-      if (top > this.size - 170) top = this.size - 170;
+      if (top > this.size - tipH) top = Math.max(8, this.size - tipH);
       this.hoverId = id;
       this.tip = { left: Math.round(left), top: Math.round(top), entry: e };
       this.syncGlobeTip();
@@ -641,6 +689,9 @@
 
       var center = [-this.rot[0], -this.rot[1]];
       var wishView = this.view === "wish";
+      var pinBase = COARSE ? 7 : 5;
+      var pinHot = COARSE ? 10 : 8;
+      var wishBase = COARSE ? 8 : 6;
       for (var i = 0; i < this.entries.length; i++) {
         var e = this.entries[i];
         if (typeof e.lat !== "number") continue;
@@ -652,15 +703,15 @@
         if (!isWish && wishView) { diamond(ctx, p[0], p[1], 3, true, "rgba(242,237,228,0.25)"); continue; }
         var hot = e.id === this.hoverId;
         if (isWish) {
-          diamond(ctx, p[0], p[1], hot ? 8 : 6, false);
+          diamond(ctx, p[0], p[1], hot ? pinHot : wishBase, false);
           ctx.setLineDash([3, 4]);
           ctx.beginPath(); ctx.arc(p[0], p[1], 13 + 2 * Math.sin(t / 450 + (e.id % 7)), 0, Math.PI * 2);
           ctx.strokeStyle = hot ? "rgba(224,138,47,0.8)" : "rgba(224,138,47,0.4)"; ctx.lineWidth = 1; ctx.stroke();
           ctx.setLineDash([]);
         } else {
-          diamond(ctx, p[0], p[1], hot ? 8 : 5, true);
+          diamond(ctx, p[0], p[1], hot ? pinHot : pinBase, true);
           if (hot) {
-            ctx.beginPath(); ctx.arc(p[0], p[1], 14, 0, Math.PI * 2);
+            ctx.beginPath(); ctx.arc(p[0], p[1], COARSE ? 18 : 14, 0, Math.PI * 2);
             ctx.strokeStyle = "rgba(224,138,47,0.7)"; ctx.lineWidth = 1; ctx.stroke();
           }
         }
@@ -864,16 +915,14 @@
         left.appendChild(name); left.appendChild(metaEl); left.appendChild(note);
 
         var controls = document.createElement("div");
-        controls.style.cssText = "display:flex;align-items:center;gap:10px;";
+        controls.className = "row-controls";
 
         if (e.wish) {
           var promote = document.createElement("button");
           promote.type = "button";
+          promote.className = "row-promote";
           promote.title = "Move to logged";
           promote.textContent = "✓ BEEN NOW";
-          promote.style.cssText = "background:none;border:1px solid rgba(224,138,47,0.5);color:#E08A2F;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.12em;padding:6px 10px;cursor:pointer;white-space:nowrap;";
-          promote.addEventListener("mouseenter", function () { promote.style.background = "rgba(224,138,47,0.12)"; });
-          promote.addEventListener("mouseleave", function () { promote.style.background = "none"; });
           promote.addEventListener("click", function (ev) { ev.stopPropagation(); self.promoteEntry(e.id); });
           controls.appendChild(promote);
         }
@@ -905,6 +954,7 @@
       window.addEventListener("resize", function () { self.sizeMap(); });
       c.addEventListener("pointermove", function (ev) { self.mapHover(ev); });
       c.addEventListener("pointerleave", function () {
+        if (COARSE) return;
         if (self.mTip || self.mHoverId !== null) { self.mHoverId = null; self.mTip = null; self.syncMapTip(); }
       });
       c.addEventListener("click", function (ev) { self.mapClick(ev); });
@@ -913,10 +963,11 @@
     sizeMap: function () {
       var c = this.mapCanvas;
       if (!c || !c.parentElement) return;
-      var w = Math.max(320, Math.min(c.parentElement.clientWidth, 760));
+      var avail = Math.max(0, c.parentElement.clientWidth);
+      var w = Math.max(220, Math.min(avail, 760));
       var h = Math.round(w * 0.78);
       this.mapW = w; this.mapH = h;
-      this.mapDpr = window.devicePixelRatio || 1;
+      this.mapDpr = Math.min(window.devicePixelRatio || 1, 2);
       c.width = w * this.mapDpr;
       c.height = h * this.mapDpr;
       c.style.width = w + "px";
@@ -926,12 +977,8 @@
     mapPx: function (lon) { return (lon - M_EXT.lonMin) / (M_EXT.lonMax - M_EXT.lonMin) * this.mapW; },
     mapPy: function (lat) { return (M_EXT.latMax - lat) / (M_EXT.latMax - M_EXT.latMin) * this.mapH; },
 
-    mapHover: function (ev) {
-      var c = this.mapCanvas;
-      if (!c || !this.mapW) return;
-      var b = c.getBoundingClientRect();
-      var x = ev.clientX - b.left, y = ev.clientY - b.top;
-      var best = null, bd = 16;
+    mapHitTest: function (x, y) {
+      var best = null, bd = MAP_HIT_R;
       for (var i = 0; i < this.meals.length; i++) {
         var m = this.meals[i];
         if (!m.isLondon || typeof m.lat !== "number") continue;
@@ -939,6 +986,15 @@
         var dd = Math.hypot(this.mapPx(m.lon) - x, this.mapPy(m.lat) - y);
         if (dd < bd) { bd = dd; best = m; }
       }
+      return best;
+    },
+
+    mapHover: function (ev) {
+      var c = this.mapCanvas;
+      if (!c || !this.mapW) return;
+      var b = c.getBoundingClientRect();
+      var x = ev.clientX - b.left, y = ev.clientY - b.top;
+      var best = this.mapHitTest(x, y);
       var adding = this.mAdding && this.mDraft && this.mDraft.isLondon;
       c.style.cursor = adding ? "crosshair" : (best ? "pointer" : "default");
       var bid = best ? best.id : null;
@@ -953,9 +1009,10 @@
       for (var i = 0; i < this.meals.length; i++) if (this.meals[i].id === id) { m = this.meals[i]; break; }
       if (!m || !m.isLondon || !this.mapW) return;
       var x = this.mapPx(m.lon), y = this.mapPy(m.lat);
-      var left = x + 20, top = y - 14;
-      if (left + 270 > this.mapW && x - 280 >= 8) left = x - 280;
-      left = Math.max(8, Math.min(left, this.mapW - 270));
+      var tipW = Math.min(250, Math.max(160, this.mapW - 16));
+      var left = x + 18, top = y - 14;
+      if (left + tipW > this.mapW && x - tipW - 10 >= 8) left = x - tipW - 10;
+      left = Math.max(8, Math.min(left, this.mapW - tipW - 8));
       top = Math.max(8, Math.min(top, this.mapH - 130));
       this.mHoverId = id;
       this.mTip = { left: Math.round(left), top: Math.round(top), m: m };
@@ -963,16 +1020,23 @@
     },
 
     mapClick: function (ev) {
-      var d = this.mDraft;
-      if (!this.mAdding || !d || !d.isLondon || !this.mapW) return;
       var c = this.mapCanvas;
+      if (!c || !this.mapW) return;
       var b = c.getBoundingClientRect();
       var x = ev.clientX - b.left, y = ev.clientY - b.top;
-      var lon = M_EXT.lonMin + (x / this.mapW) * (M_EXT.lonMax - M_EXT.lonMin);
-      var lat = M_EXT.latMax - (y / this.mapH) * (M_EXT.latMax - M_EXT.latMin);
-      this.mDraft.lat = +lat.toFixed(4);
-      this.mDraft.lon = +lon.toFixed(4);
-      this.syncMForm();
+      var d = this.mDraft;
+      if (this.mAdding && d && d.isLondon) {
+        var lon = M_EXT.lonMin + (x / this.mapW) * (M_EXT.lonMax - M_EXT.lonMin);
+        var lat = M_EXT.latMax - (y / this.mapH) * (M_EXT.latMax - M_EXT.latMin);
+        this.mDraft.lat = +lat.toFixed(4);
+        this.mDraft.lon = +lon.toFixed(4);
+        this.syncMForm();
+        return;
+      }
+      // Tap-to-select on touch / click on desktop
+      var hit = this.mapHitTest(x, y);
+      if (hit) this.showMTip(hit.id);
+      else { this.mHoverId = null; this.mTip = null; this.syncMapTip(); }
     },
 
     drawMap: function (t) {
@@ -1028,7 +1092,7 @@
         if (!isWish && mWishView) { diamond(ctx, mx, my, 2.5, true, "rgba(242,237,228,0.25)"); continue; }
         var n = Math.max(1, Math.min(3, m.stars || 1));
         var hot = m.id === this.mHoverId;
-        var sp = 11, r = hot ? 6 : 4.5;
+        var sp = COARSE ? 13 : 11, r = hot ? (COARSE ? 8 : 6) : (COARSE ? 6 : 4.5);
         var x0 = mx - ((n - 1) * sp) / 2;
         for (var k = 0; k < n; k++) diamond(ctx, x0 + k * sp, my, r, isWish ? false : true);
         if (isWish) {
@@ -1199,16 +1263,14 @@
         stars.textContent = starsLabel(m);
 
         var controls = document.createElement("div");
-        controls.style.cssText = "display:flex;align-items:center;gap:10px;";
+        controls.className = "row-controls";
 
         if (m.wish) {
           var promote = document.createElement("button");
           promote.type = "button";
+          promote.className = "row-promote";
           promote.title = "Move to eaten";
           promote.textContent = "✓ EATEN";
-          promote.style.cssText = "background:none;border:1px solid rgba(224,138,47,0.5);color:#E08A2F;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.12em;padding:6px 10px;cursor:pointer;white-space:nowrap;";
-          promote.addEventListener("mouseenter", function () { promote.style.background = "rgba(224,138,47,0.12)"; });
-          promote.addEventListener("mouseleave", function () { promote.style.background = "none"; });
           promote.addEventListener("click", function (ev) { ev.stopPropagation(); self.mPromote(m.id); });
           controls.appendChild(promote);
         }

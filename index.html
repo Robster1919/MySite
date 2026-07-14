@@ -188,7 +188,7 @@
     .work-grid { grid-template-columns: 1fr; gap: 34px; }
     .field-head { flex-direction: column; align-items: flex-start; gap: 28px; }
     .field-showcase { grid-template-columns: 1fr; }
-    .field-globe { min-height: 400px; padding: 32px 20px; }
+    .field-globe { min-height: 320px; padding: 20px 12px; }
     .field-photos { min-height: 0; grid-template-rows: none; grid-auto-rows: minmax(180px, auto); }
     .field-photos .field-card .slot { height: 240px; flex: none; }
     .next { padding-left: 24px; padding-right: 24px; }
@@ -205,6 +205,8 @@
     .role-main { grid-column: 1 / -1; grid-row: 2; }
     .role-tag { grid-column: 1 / -1; grid-row: 3; text-align: left; }
     .role-detail { padding-left: 0; }
+    .role-point { white-space: normal; }
+    .field-cta { padding: 14px 18px; letter-spacing: 0.1em; }
   }
 </style>
 </head>
@@ -623,9 +625,15 @@
     sizeGlobe: function () {
       var c = this.canvas;
       if (!c || !c.parentElement) return;
-      var s = Math.max(300, Math.min(c.parentElement.clientWidth - 60, 520));
+      var pad = 40;
+      try {
+        var cs = window.getComputedStyle(c.parentElement);
+        pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      } catch (e) {}
+      var avail = Math.max(0, c.parentElement.clientWidth - pad);
+      var s = Math.max(200, Math.min(avail, 520));
       this.size = s;
-      this.dpr = window.devicePixelRatio || 1;
+      this.dpr = Math.min(window.devicePixelRatio || 1, 2);
       c.width = s * this.dpr; c.height = s * this.dpr;
       c.style.width = s + "px"; c.style.height = s + "px";
     },

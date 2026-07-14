@@ -74,7 +74,7 @@
   .lb-counter { font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.16em; color: #E08A2F; }
   .lb-close { background: none; border: 1px solid rgba(242,237,228,0.25); color: rgba(242,237,228,0.7); font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.14em; padding: 9px 16px; cursor: pointer; }
   .lb-close:hover { border-color: #E08A2F; color: #E08A2F; }
-  .lb-stage { min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 20px; padding: 0 24px; }
+  .lb-stage { position: relative; min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 20px; padding: 0 24px; }
   .lb-arrow { flex: none; width: 56px; height: 56px; background: none; border: 1px solid rgba(242,237,228,0.25); color: #F2EDE4; font-size: 26px; line-height: 1; cursor: pointer; }
   .lb-arrow:hover { border-color: #E08A2F; color: #E08A2F; }
   .lb-img { flex: 1 1 auto; min-width: 0; height: 100%; object-fit: contain; cursor: default; }
@@ -96,8 +96,18 @@
     .grid { grid-template-columns: 1fr; }
     .full { grid-column: auto; }
     .footer { padding: 24px; flex-direction: column; gap: 14px; align-items: flex-start; }
-    .lb-arrow { width: 44px; height: 44px; font-size: 22px; }
-    .lb-stage { padding: 0 8px; }
+    .lb-top { padding: 16px 20px; }
+    .lb-cap { padding: 18px 20px 28px; }
+    .lb-stage { padding: 0; gap: 0; }
+    /* Overlay arrows so the plate gets the full width of the phone */
+    .lb-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+      width: 44px; height: 44px; font-size: 22px;
+      background: rgba(20,17,13,0.55); border-color: rgba(242,237,228,0.35);
+    }
+    .lb-arrow#lbPrev { left: 8px; }
+    .lb-arrow#lbNext { right: 8px; }
+    .lb-img { width: 100%; max-height: 100%; }
   }
 </style>
 </head>
@@ -280,6 +290,22 @@
   var lbCap = lb.querySelector(".lb-cap");
   if (lbTop) lbTop.addEventListener("click", function (ev) { ev.stopPropagation(); });
   if (lbCap) lbCap.addEventListener("click", function (ev) { ev.stopPropagation(); });
+
+  // Swipe left/right on the stage to step plates on touch devices
+  var swipe = null;
+  stage.addEventListener("pointerdown", function (ev) {
+    if (open === null) return;
+    swipe = { x: ev.clientX, y: ev.clientY, id: ev.pointerId };
+  });
+  stage.addEventListener("pointerup", function (ev) {
+    if (!swipe || swipe.id !== ev.pointerId) return;
+    var dx = ev.clientX - swipe.x, dy = ev.clientY - swipe.y;
+    swipe = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    ev.stopPropagation();
+    step(dx < 0 ? 1 : -1);
+  });
+  stage.addEventListener("pointercancel", function () { swipe = null; });
 
   window.addEventListener("keydown", function (ev) {
     if (open === null) return;
