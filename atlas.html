@@ -60,14 +60,14 @@
 
   /* split layout */
   .split { display: grid; grid-template-columns: 1.35fr 1fr; border-bottom: 1px solid rgba(242,237,228,0.12); align-items: start; }
-  .map-col { border-right: 1px solid rgba(242,237,228,0.12); padding: 48px; display: flex; flex-direction: column; align-items: center; gap: 24px; position: sticky; top: 0; }
-  .canvas-wrap { position: relative; width: 100%; }
+  .split > * { min-width: 0; }
+  .map-col { border-right: 1px solid rgba(242,237,228,0.12); padding: 48px; display: flex; flex-direction: column; align-items: center; gap: 24px; position: sticky; top: 0; min-width: 0; }
+  .canvas-wrap { position: relative; width: 100%; max-width: 100%; min-width: 0; overflow: hidden; }
   .canvas-wrap.globe { max-width: 720px; }
   .canvas-wrap.map { max-width: 760px; }
-  #globeCanvas { display: block; width: 100%; touch-action: none; cursor: grab; }
-  /* content-box so the CSS size set from JS matches the drawing buffer exactly
-     despite the 1px border */
-  #mapCanvas { display: block; width: 100%; border: 1px solid rgba(242,237,228,0.2); box-sizing: content-box; }
+  #globeCanvas { display: block; width: 100%; max-width: 100%; touch-action: none; cursor: grab; }
+  /* border-box so width never spills past the wrap on narrow screens */
+  #mapCanvas { display: block; width: 100%; max-width: 100%; border: 1px solid rgba(242,237,228,0.2); box-sizing: border-box; }
 
   .overlay-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.18em; color: rgba(242,237,228,0.45); }
 
@@ -155,13 +155,15 @@
     .h1 { font-size: clamp(48px, 14vw, 88px); }
     .h1-sm { font-size: clamp(40px, 12vw, 72px); }
     .split { grid-template-columns: 1fr; }
-    .map-col { position: static; border-right: none; padding: 28px 24px 36px; border-bottom: 1px solid rgba(242,237,228,0.12); }
-    .canvas-wrap.globe, .canvas-wrap.map { max-width: 100%; }
-    .ledger-col { padding: 32px 24px; }
+    .map-col { position: static; border-right: none; padding: 28px 24px 36px; border-bottom: 1px solid rgba(242,237,228,0.12); width: 100%; }
+    .canvas-wrap.globe, .canvas-wrap.map { max-width: 100%; width: 100%; }
+    .ledger-col { padding: 32px 24px; width: 100%; }
     .section-head { grid-template-columns: 1fr; padding: 48px 24px 32px; gap: 24px; align-items: start; }
-    .scroll-col { max-height: none; }
-    .scroll-col.tables-london, .scroll-col.tables-away { max-height: none; }
-    .hint { white-space: normal; line-height: 1.55; padding: 0 4px; }
+    /* Keep lists truncated with internal scroll — full expansion made the page endless */
+    .scroll-col { max-height: min(420px, 55vh); }
+    .scroll-col.tables-london { max-height: min(320px, 45vh); }
+    .scroll-col.tables-away { max-height: min(220px, 32vh); }
+    .hint { white-space: normal; line-height: 1.55; padding: 0 4px; max-width: 100%; }
     .pin-banner { white-space: normal; text-align: center; left: 12px; right: 12px; transform: none; width: auto; }
     .tip-card { width: min(250px, calc(100% - 16px)); max-width: calc(100% - 16px); box-sizing: border-box; }
     .footer { padding: 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
@@ -185,7 +187,7 @@
       <h1 class="h1">Ground<br>truth.</h1>
     </div>
     <div class="header-right">
-      <div class="lede">Every pin is somewhere I've actually stood. Drag the globe to wander, hover a pin for the story. New entries get logged as they happen.</div>
+      <div class="lede">Every pin is somewhere I've actually stood. Drag the globe to wander, tap a pin for the story. New entries get logged as they happen.</div>
       <button class="btn-outline" id="addEntryBtn" type="button">ADD ENTRY +</button>
     </div>
   </div>
@@ -529,14 +531,16 @@
       var c = this.canvas;
       if (!c || !c.parentElement) return;
       // Fit the container — never force a floor that overflows a narrow phone column
-      var avail = Math.max(0, c.parentElement.clientWidth);
-      var s = Math.max(220, Math.min(avail, 720));
+      var avail = Math.floor(c.parentElement.clientWidth || c.parentElement.getBoundingClientRect().width || 0);
+      if (avail < 1) avail = Math.floor(document.documentElement.clientWidth - 48);
+      var s = Math.max(200, Math.min(avail, 720));
       this.size = s;
       this.dpr = Math.min(window.devicePixelRatio || 1, 2);
       c.width = s * this.dpr;
       c.height = s * this.dpr;
       c.style.width = s + "px";
       c.style.height = s + "px";
+      c.style.maxWidth = "100%";
     },
 
     onMove: function (ev) {
@@ -952,6 +956,11 @@
       if (!c) return;
       this.sizeMap();
       window.addEventListener("resize", function () { self.sizeMap(); });
+      // Re-measure when the wrap actually settles (fonts, late layout) — stops the
+      // map locking to a too-wide first paint on mobile
+      if (window.ResizeObserver && c.parentElement) {
+        new ResizeObserver(function () { self.sizeMap(); }).observe(c.parentElement);
+      }
       c.addEventListener("pointermove", function (ev) { self.mapHover(ev); });
       c.addEventListener("pointerleave", function () {
         if (COARSE) return;
@@ -963,8 +972,11 @@
     sizeMap: function () {
       var c = this.mapCanvas;
       if (!c || !c.parentElement) return;
-      var avail = Math.max(0, c.parentElement.clientWidth);
-      var w = Math.max(220, Math.min(avail, 760));
+      var wrap = c.parentElement;
+      // Use the wrap's content box; never let the canvas dictate a wider min-size
+      var avail = Math.floor(wrap.clientWidth || wrap.getBoundingClientRect().width || 0);
+      if (avail < 1) avail = Math.floor(document.documentElement.clientWidth - 48);
+      var w = Math.max(200, Math.min(avail, 760));
       var h = Math.round(w * 0.78);
       this.mapW = w; this.mapH = h;
       this.mapDpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -972,6 +984,7 @@
       c.height = h * this.mapDpr;
       c.style.width = w + "px";
       c.style.height = h + "px";
+      c.style.maxWidth = "100%";
     },
 
     mapPx: function (lon) { return (lon - M_EXT.lonMin) / (M_EXT.lonMax - M_EXT.lonMin) * this.mapW; },
