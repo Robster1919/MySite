@@ -35,14 +35,15 @@
   .prompt { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: rgba(242,237,228,0.5); margin-bottom: 14px; }
   .prompt.wrong { color: #E08A2F; }
   .row { display: flex; }
-  .row input { flex: 1; background: none; border: 1px solid rgba(242,237,228,0.3); border-right: none; color: #F2EDE4; font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 0.2em; padding: 16px 20px; outline: none; }
+  .row input { flex: 1; min-width: 0; background: none; border: 1px solid rgba(242,237,228,0.3); border-right: none; color: #F2EDE4; font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 0.2em; padding: 16px 20px; outline: none; }
   .row input:focus { border-color: #E08A2F; }
-  .row button { background: #E08A2F; border: 1px solid #E08A2F; color: #14110D; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; padding: 16px 28px; cursor: pointer; font-weight: 500; }
+  .row button { flex: none; background: #E08A2F; border: 1px solid #E08A2F; color: #14110D; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; padding: 16px 28px; cursor: pointer; font-weight: 500; }
   .row button:hover { background: #EDA050; }
   @media (max-width: 640px) {
     .bar.top { padding: 18px 22px; flex-wrap: wrap; gap: 6px 14px; }
     .center { padding: 48px 24px; }
     .bar.bottom { padding: 22px 24px; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .row button { padding: 16px 20px; }
   }
 </style>
 </head>
